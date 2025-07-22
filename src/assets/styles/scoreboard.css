@@ -1,0 +1,44 @@
+.scoreboard {
+  background-color: #222;
+  color: #fff;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+}
+
+.scoreboard h3 {
+  margin-bottom: 0.5rem;
+  color: #00d1b2;
+}
+
+.scoreboard ul {
+  list-style: none;
+  padding: 0;
+}
+
+.scoreboard li {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.scoreboard .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.scoreboard .red { background-color: red; }
+.scoreboard .green { background-color: green; }
+.scoreboard .blue { background-color: blue; }
+.scoreboard .yellow { background-color: gold; }
+
+.scoreboard .active {
+  background-color: rgba(0, 255, 0, 0.1);
+  border-left: 4px solid limegreen;
+  padding-left: 8px;
+}
