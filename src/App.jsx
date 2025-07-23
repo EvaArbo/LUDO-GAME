@@ -1,16 +1,15 @@
 import React from 'react';
-import Dice from "./components/Dice";
-import GamePiece from "./assets/Components/Gamepiece";
-
+import TokenPreview from './assets/Components/TokenPreview';
+import Dice from './assets/Components/Dice';
 import { GameProvider } from './context/Gamecontext';
 
 function App() {
   return (
     <GameProvider>
-      <div>
-        <h1>Ludo Game</h1>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem', padding: '2rem' }}>
+        <h2>🎲 Dice Preview</h2>
+        <TokenPreview />
         <Dice />
-        <GamePiece/>
       </div>
     </GameProvider>
   );
