@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
-import { GameContext } from "../../context/Gamecontext";
-
+import { GameContext } from '../context/Gamecontext';
 import { rollDice } from '../utils/dice';
 import '../assets/styles/dice.css';
 
