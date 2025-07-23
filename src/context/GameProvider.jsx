@@ -1,9 +1,7 @@
 import React, { createContext, useState } from "react";
 
-// Create the context
 export const GameContext = createContext();
 
-// Create a provider component
 export function GameProvider({ children }) {
   const [currentTurn, setCurrentTurn] = useState("Player 1");
 
