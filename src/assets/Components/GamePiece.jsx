@@ -1,25 +1,32 @@
-import React from "react";
-import { path } from "../utils/movement"; 
-import "./gamepiece.css";
+import React from 'react';
+import "../styles/gamepiece.css";
 
-const GamePiece = ({ index }) => {
+function GamePiece({ color, position, size = 36, name = 'Player', onClick }) {
+  // The function that runs when the piece is clicked
+  const handleClick = () => {
+    if (onClick) onClick();
+  };
 
-    if (index === -1) return null;
+  const style = {
+    backgroundColor: color,
+    left: `${position.x * 40}px`, // position.x is the X coordinate of the piece
+    top: `${position.y * 40}px`,  // position.y is the Y coordinate of the piece
+    width: `${size}px`,
+    height: `${size}px`,
+    lineHeight: `${size}px`,
+    position: 'absolute',
+    textAlign: 'center',
+    borderRadius: '50%',
+    color: '#fff',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+  };
 
-    const position = path[index] || {x: 0, y: 0};
-
-    const style = {
-        position: "absolute",
-        left: `${position.x * 10}px`, 
-        top: `${position.y * 10}px`, 
-        width: "20px",
-        height: "20px",
-        backgroundColor: "red",
-        borderRadius: "50%",
-    };
-
-    return <div style={style}></div>;
-};
+  return (
+    <div className="game-piece" style={style} onClick={handleClick}>
+      <span className="piece-text">{name}</span>
+    </div>
+  );
+}
 
 export default GamePiece;
-
