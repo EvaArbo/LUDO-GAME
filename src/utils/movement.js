@@ -1,3 +1,4 @@
+
 // Example path for the Ludo board (simplified version)
 export const boardPath = [
   { x: 0, y: 6 }, { x: 1, y: 6 }, { x: 2, y: 6 }, { x: 3, y: 6 },
@@ -35,3 +36,9 @@ export const movePiece = (currentIndex, diceRoll, inHomeStretch) => {
 export const getPositionFromIndex = (index) => {
   return boardPath[index] || homeStretch[index - boardPath.length];
 };
+
+export function calculateNewPosition(currentPosition, diceValue, boardSize = 56) {
+  const newPosition = currentPosition + diceValue;
+  return newPosition > boardSize ? currentPosition : newPosition;
+}
+
