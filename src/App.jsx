@@ -43,14 +43,3 @@ function App() {
           />
         ))}
       </div>
-
-      <div className="dice-roll">
-        {/* Button to roll the dice */}
-        <p>Dice Roll: {count}</p>
-        <button onClick={handleDiceRoll}>Roll Dice</button> {/* Make sure the button is clickable */}
-      </div>
-    </div>
-  );
-}
-
-export default App;
