@@ -1,4 +1,20 @@
+
 import { useContext, useState } from "react";
+
+import React from "react";
+import diceRollSound from "../sounds/dice-roll.m4a";
+
+function Dice({ value, onClick }) {
+  const handleClick = () => {
+    const audio = new Audio(diceRollSound);
+    audio.play();
+
+    const newValue = Math.floor(Math.random() * 6) + 1;
+
+    onClick(newValue);
+
+import React, { useContext } from 'react';
+
 import { GameContext } from "../../context/Gamecontext";
 import { rollDice } from "../../utils/dice";
 import "../styles/dice.css";
@@ -34,6 +50,10 @@ function Dice() {
 
   return (
     <div className="dice-container">
+      <button className="dice-button" onClick={handleClick}>
+        🎲 {value}
+      </button>
+
       <h3>Player {currentPlayer + 1}'s Turn</h3>
       <button className="dice-button" onClick={handleRoll}>Roll Dice</button>
       {diceValue && (
