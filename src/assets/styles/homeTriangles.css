@@ -1,37 +1,51 @@
+.triangle-wrapper {
+  position: absolute;
+  top: calc(50% - 60px); /* Adjust based on cell size (3x3 cells = 120px total) */
+  left: calc(50% - 60px);
+  width: 120px;
+  height: 120px;
+  z-index: 10;
+  pointer-events: none;
+}
+
 .triangle {
+  position: absolute;
   width: 0;
   height: 0;
-  position: absolute;
 }
 
+/* Top triangle (Red) */
 .red-triangle {
-  border-left: 90px solid transparent;
-  border-right: 90px solid transparent;
-  border-bottom: 90px solid #ff4d4d;
   top: 0;
-  left: 0;
+  left: 30px;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-bottom: 60px solid red;
 }
 
+/* Bottom triangle (Green) */
 .green-triangle {
-  border-left: 90px solid transparent;
-  border-right: 90px solid transparent;
-  border-top: 90px solid #66cc66;
-  top: 0;
-  right: 0;
+  bottom: 0;
+  left: 30px;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-top: 60px solid green;
 }
 
+/* Left triangle (Yellow) */
 .yellow-triangle {
-  border-left: 90px solid transparent;
-  border-right: 90px solid transparent;
-  border-bottom: 90px solid #ffeb3b;
-  bottom: 0;
   left: 0;
+  top: 30px;
+  border-top: 30px solid transparent;
+  border-bottom: 30px solid transparent;
+  border-right: 60px solid yellow;
 }
 
+/* Right triangle (Blue) */
 .blue-triangle {
-  border-left: 90px solid transparent;
-  border-right: 90px solid transparent;
-  border-top: 90px solid #3399ff;
-  bottom: 0;
   right: 0;
+  top: 30px;
+  border-top: 30px solid transparent;
+  border-bottom: 30px solid transparent;
+  border-left: 60px solid blue;
 }

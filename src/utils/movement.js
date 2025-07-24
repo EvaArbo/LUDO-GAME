@@ -1,3 +1,4 @@
+
 export const path = [...Array(52).keys()];
 
 /**
@@ -17,3 +18,7 @@ export const getNewPosition = (currentIndex, diceRoll) => {
   const nextIndex = currentIndex + diceRoll;
   return nextIndex < path.length ? nextIndex : currentIndex;
 };
+export function calculateNewPosition(currentPosition, diceValue, boardSize = 56) {
+  const newPosition = currentPosition + diceValue;
+  return newPosition > boardSize ? currentPosition : newPosition;
+}
