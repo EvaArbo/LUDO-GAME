@@ -34,6 +34,19 @@
 .dice-image {
   width: 60px;
   height: 60px;
+  transition: transform 0.3s ease;
+}
+
+.dice-image.rolling {
+  animation: shake 0.8s;
+}
+
+@keyframes shake {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(10deg); }
+  50% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
 }
 .home-square {
   display: flex;
