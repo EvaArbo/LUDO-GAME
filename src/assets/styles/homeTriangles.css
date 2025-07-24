@@ -1,0 +1,37 @@
+.triangle {
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.red-triangle {
+  border-left: 90px solid transparent;
+  border-right: 90px solid transparent;
+  border-bottom: 90px solid #ff4d4d;
+  top: 0;
+  left: 0;
+}
+
+.green-triangle {
+  border-left: 90px solid transparent;
+  border-right: 90px solid transparent;
+  border-top: 90px solid #66cc66;
+  top: 0;
+  right: 0;
+}
+
+.yellow-triangle {
+  border-left: 90px solid transparent;
+  border-right: 90px solid transparent;
+  border-bottom: 90px solid #ffeb3b;
+  bottom: 0;
+  left: 0;
+}
+
+.blue-triangle {
+  border-left: 90px solid transparent;
+  border-right: 90px solid transparent;
+  border-top: 90px solid #3399ff;
+  bottom: 0;
+  right: 0;
+}
