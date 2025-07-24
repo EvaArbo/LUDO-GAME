@@ -1,22 +1,9 @@
-
-import { useContext, useState } from "react";
-
-import React from "react";
-import diceRollSound from "../sounds/dice-roll.m4a";
-
-function Dice({ value, onClick }) {
-  const handleClick = () => {
-    const audio = new Audio(diceRollSound);
-    audio.play();
-
-    const newValue = Math.floor(Math.random() * 6) + 1;
-
-    onClick(newValue);
-
-import React, { useContext } from 'react';
-
+import React, { useContext, useState } from "react";
 import { GameContext } from "../../context/Gamecontext";
 import { rollDice } from "../../utils/dice";
+
+import diceRollSound from "../sounds/dice-roll.m4a";
+
 import "../styles/dice.css";
 import dice1 from "../images/dice-1.svg";
 import dice2 from "../images/dice-2.svg";
@@ -39,9 +26,15 @@ function Dice() {
   const [rolling, setRolling] = useState(false);
 
   const handleRoll = () => {
+    const audio = new Audio(diceRollSound);
+    audio.play();
+
     setRolling(true);
-    const value = rollDice();
+
+    const value = rollDice(); // Generates a value from 1–6
     setDiceValue(value);
+
+    // Delay to simulate rolling animation and switch turns
     setTimeout(() => {
       setRolling(false);
       nextPlayer();
@@ -50,12 +43,12 @@ function Dice() {
 
   return (
     <div className="dice-container">
-      <button className="dice-button" onClick={handleClick}>
-        🎲 {value}
+      <h3>🎯 Player {currentPlayer + 1}'s Turn</h3>
+
+      <button className="dice-button" onClick={handleRoll} disabled={rolling}>
+        {rolling ? "Rolling..." : "Roll Dice 🎲"}
       </button>
 
-      <h3>Player {currentPlayer + 1}'s Turn</h3>
-      <button className="dice-button" onClick={handleRoll}>Roll Dice</button>
       {diceValue && (
         <img
           src={diceImages[diceValue]}
@@ -68,3 +61,4 @@ function Dice() {
 }
 
 export default Dice;
+
