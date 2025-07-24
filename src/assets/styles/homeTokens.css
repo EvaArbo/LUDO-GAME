@@ -1,0 +1,34 @@
+.home-tokens-container {
+  width: 60px;
+  height: 60px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+.pawn-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: white;
+  border: 2px solid #333;
+}
+
+
+.home-tokens-container.red {
+  background-color: rgba(255, 0, 0, 0.2);
+}
+.home-tokens-container.green {
+  background-color: rgba(0, 255, 0, 0.2);
+}
+.home-tokens-container.yellow {
+  background-color: rgba(255, 255, 0, 0.2);
+}
+.home-tokens-container.blue {
+  background-color: rgba(0, 0, 255, 0.2);
+}
