@@ -1,0 +1,108 @@
+/* 🎯 Board Layout */
+.board-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(15, 40px);
+  grid-template-rows: repeat(15, 40px);
+  background-color: #333;
+  border: 5px solid #222;
+  position: relative;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  border: 1px solid #bbb;
+  box-sizing: border-box;
+}
+
+/* 🏠 Home Zones */
+.red-zone {
+  background-color: #f28b82;
+}
+.green-zone {
+  background-color: #81c995;
+}
+.yellow-zone {
+  background-color: #fdd663;
+}
+.blue-zone {
+  background-color: #aecbfa;
+}
+
+/* 🎯 Center Goals */
+.red-center,
+.green-center,
+.yellow-center,
+.blue-center {
+  background-color: white;
+  border: 2px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 🛣️ Paths */
+.path {
+  background-color: #f1f1f1;
+}
+.center-path {
+  background-color: #bbb;
+}
+.center-cell {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  background: white;
+  overflow: hidden;
+  border: 2px solid black;
+}
+
+/* Shared triangle styles */
+.triangle {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* 🟥 Red - Top Left */
+.triangle-red {
+  top: 0;
+  left: 0;
+  border-right: 20px solid transparent;
+  border-bottom: 20px solid red;
+}
+
+/* 🟨 Yellow - Bottom Left */
+.triangle-yellow {
+  bottom: 0;
+  left: 0;
+  border-right: 20px solid transparent;
+  border-top: 20px solid yellow;
+}
+
+/* 🟦 Blue - Bottom Right */
+.triangle-blue {
+  bottom: 0;
+  right: 0;
+  border-left: 20px solid transparent;
+  border-top: 20px solid blue;
+}
+
+/* 🟩 Green - Top Right */
+.triangle-green {
+  top: 0;
+  right: 0;
+  border-left: 20px solid transparent;
+  border-bottom: 20px solid green;
+}
+

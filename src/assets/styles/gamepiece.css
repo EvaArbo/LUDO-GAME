@@ -1,0 +1,49 @@
+/* General Game Piece Styling */
+.game-piece {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: transform 0.2s ease;
+}
+
+/* Hover effect to enlarge the piece */
+.game-piece:hover {
+  transform: scale(1.1);
+}
+
+/* Player 1 (Red) */
+.game-piece.red {
+  background-color: #e74c3c; /* Red */
+  box-shadow: 0 0 5px #e74c3c;
+}
+
+/* Player 2 (Blue) */
+.game-piece.blue {
+  background-color: #3498db; /* Blue */
+  box-shadow: 0 0 5px #3498db;
+}
+
+/* Player 3 (Green) */
+.game-piece.green {
+  background-color: #2ecc71; /* Green */
+  box-shadow: 0 0 5px #2ecc71;
+}
+
+/* Player 4 (Yellow) */
+.game-piece.yellow {
+  background-color: #f1c40f; /* Yellow */
+  box-shadow: 0 0 5px #f1c40f;
+}
+
+/* Optionally, adding text (Player names) */
+.piece-text {
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+}

@@ -1,0 +1,51 @@
+.triangle-wrapper {
+  position: absolute;
+  top: calc(50% - 60px); /* Adjust based on cell size (3x3 cells = 120px total) */
+  left: calc(50% - 60px);
+  width: 120px;
+  height: 120px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.triangle {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* Top triangle (Red) */
+.red-triangle {
+  top: 0;
+  left: 30px;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-bottom: 60px solid red;
+}
+
+/* Bottom triangle (Green) */
+.green-triangle {
+  bottom: 0;
+  left: 30px;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-top: 60px solid green;
+}
+
+/* Left triangle (Yellow) */
+.yellow-triangle {
+  left: 0;
+  top: 30px;
+  border-top: 30px solid transparent;
+  border-bottom: 30px solid transparent;
+  border-right: 60px solid yellow;
+}
+
+/* Right triangle (Blue) */
+.blue-triangle {
+  right: 0;
+  top: 30px;
+  border-top: 30px solid transparent;
+  border-bottom: 30px solid transparent;
+  border-left: 60px solid blue;
+}
