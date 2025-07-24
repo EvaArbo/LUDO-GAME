@@ -1,3 +1,18 @@
+.dice-button {
+  font-size: 2rem;
+  padding: 1rem 2rem;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease-in-out;
+}
+
+.dice-button:hover {
+  transform: scale(1.05);
+
 .dice-container {
   display: flex;
   flex-direction: column;
@@ -20,3 +35,29 @@
   width: 60px;
   height: 60px;
 }
+.home-square {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 180px;
+  width: 180px;
+  box-sizing: border-box;
+}
+
+.home-pons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 8px;
+}
+
+.pon {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: white;
+  border: 3px solid black;
+}
+.red-zone .pon { background-color: #d10000; }
+.green-zone .pon { background-color: #007f00; }
+.yellow-zone .pon { background-color: #b79400; }
+.blue-zone .pon { background-color: #0066cc; }
