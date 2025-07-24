@@ -1,7 +1,15 @@
+.dice-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: 1rem;
+}
+
 .dice-button {
   font-size: 2rem;
   padding: 1rem 2rem;
-  background-color: #4caf50;
+  background-color: #2ecc71;
   color: white;
   border: none;
   border-radius: 10px;
@@ -12,23 +20,6 @@
 
 .dice-button:hover {
   transform: scale(1.05);
-
-.dice-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  margin: 1rem;
-}
-
-.dice-button {
-  padding: 12px 24px;
-  font-size: 1.1rem;
-  background-color: #2ecc71;
-  border: none;
-  border-radius: 10px;
-  color: white;
-  cursor: pointer;
 }
 
 .dice-image {
@@ -48,6 +39,8 @@
   75% { transform: rotate(10deg); }
   100% { transform: rotate(0deg); }
 }
+
+/* Home zone styles */
 .home-square {
   display: flex;
   justify-content: center;
@@ -70,6 +63,7 @@
   background-color: white;
   border: 3px solid black;
 }
+
 .red-zone .pon { background-color: #d10000; }
 .green-zone .pon { background-color: #007f00; }
 .yellow-zone .pon { background-color: #b79400; }
