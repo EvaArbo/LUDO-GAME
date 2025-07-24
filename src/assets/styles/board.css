@@ -1,0 +1,174 @@
+/* 🧩 Main Board Container */
+.board-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #222;
+  background: linear-gradient(to bottom, #f8f9fa, #e2e6ea);
+  min-height: 100vh;
+}
+
+/* 🎮 Game Board */
+.board {
+  display: grid;
+  grid-template-columns: repeat(15, 30px);
+  grid-template-rows: repeat(15, 30px);
+  gap: 1px;
+  background-color: #444;
+  margin-top: 20px;
+  border: 3px solid #333;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 🔳 Cell Base */
+.cell {
+  width: 30px;
+  height: 30px;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  transition: transform 0.2s;
+}
+.cell:hover {
+  transform: scale(1.1);
+  z-index: 2;
+}
+
+/* 🏠 Zones */
+.red-zone { background-color: #ff6666; }
+.green-zone { background-color: #66ff99; }
+.yellow-zone { background-color: #fff86a; }
+.blue-zone { background-color: #66ccff; }
+
+/* ⛳ Pathways */
+.path {
+  background-color: #fff;
+}
+.center-path {
+  background-color: #ccc;
+}
+.center-cell {
+  background-color: black;
+  border: 3px solid white;
+}
+
+/* 🔺 Triangle Zones */
+.triangle-up {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  background-color: inherit;
+}
+.triangle-down {
+  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+  background-color: inherit;
+}
+.triangle-left {
+  clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
+  background-color: inherit;
+}
+.triangle-right {
+  clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
+  background-color: inherit;
+}
+
+/* 🏆 Scoreboard */
+.scoreboard {
+  background-color: #ffffffee;
+  padding: 20px 30px;
+  border-radius: 15px;
+  margin-top: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+  width: 80%;
+  max-width: 400px;
+  text-align: left;
+}
+.scoreboard:hover {
+  transform: scale(1.01);
+}
+.scoreboard h3 {
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.scoreboard ul {
+  list-style: none;
+  padding: 0;
+}
+.scoreboard li {
+  font-weight: bold;
+  padding: 5px 0;
+  font-size: 1.1rem;
+}
+.player-name.red { color: #d10000; }
+.player-name.green { color: #007f00; }
+.player-name.yellow { color: #b79400; }
+.player-name.blue { color: #0066cc; }
+
+/* 🎛 Control Buttons */
+.control-buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 15px;
+}
+.control-buttons button {
+  padding: 10px 25px;
+  background: #333;
+  color: white;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+.control-buttons button:hover {
+  background: #555;
+  transform: translateY(-2px);
+}
+
+/* 📘 Instructions */
+.instructions {
+  margin-top: 30px;
+  width: 85%;
+  max-width: 700px;
+  text-align: center;
+}
+.toggle-instructions {
+  background-color: #343a40;
+  color: white;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  margin-bottom: 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.3s ease;
+}
+.toggle-instructions:hover {
+  background-color: #495057;
+}
+.how-to-play {
+  background: #fdfdfd;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-align: left;
+  animation: fadeIn 0.4s ease-in;
+}
+.how-to-play h3 {
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+}
+.how-to-play ol {
+  padding-left: 20px;
+  line-height: 1.7;
+  color: #333;
+}
+
+/* 🌟 Fade In Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
