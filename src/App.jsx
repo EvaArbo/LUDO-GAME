@@ -8,6 +8,11 @@ function App() {
     setDiceValue(value);
   };
 
+import React from "react";
+import Board from "./assets/Components/Board";
+import "./App.css";
+
+const App = () => {
   return (
     <div>
       <h1>LUDO-GAME</h1>
@@ -15,5 +20,14 @@ function App() {
     </div>
   );
 }
+
+export default App;
+
+    <div className="app-container">
+      <h1>Ludo Game</h1>
+      <Board />
+    </div>
+  );
+};
 
 export default App;
