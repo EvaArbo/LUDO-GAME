@@ -33,10 +33,35 @@ function App() {
 
 import React from "react";
 import Board from "./assets/Components/Board";
+
+import Dice from "./components/Dice";
+import GamePiece from "./assets/Components/Gamepiece";
+import { GameProvider } from "./context/Gamecontext";
+
+
 import "./App.css";
 
 const App = () => {
   return (
+
+    <div className="app-container">
+      <h1>Ludo Game</h1>
+      <Board />
+    </div>
+  );
+};
+
+export default App;
+
+    <GameProvider>
+      <div className="app-container">
+        <h1>Ludo Game</h1>
+        <Board />
+        <Dice />
+        <GamePiece />
+      </div>
+    </GameProvider>
+
     <div style={{ textAlign: "center" }}>
       <h1>Ludo Game 🎲</h1>
       <h2>Current Turn: {currentTurn.toUpperCase()}</h2>
@@ -66,3 +91,4 @@ export default App;
 };
 
 export default App;
+
