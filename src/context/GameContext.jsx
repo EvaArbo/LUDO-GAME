@@ -186,14 +186,11 @@ export const GameProvider = ({ children }) => {
     ));
   };
 
-  // Auto-move logic: if mustMove is true and only one token can move, move it automatically
+  // Auto-move logic: if mustMove is true and there are movable tokens, move the first one automatically
   React.useEffect(() => {
-    if (mustMove && currentPlayer === humanPlayer) {
+    if (mustMove && diceValue && getMovableTokens(currentPlayer, diceValue).length > 0) {
       const movable = getMovableTokens(currentPlayer, diceValue);
-      if (movable.length === 1) {
-        // Auto-move the only available token
-        moveToken(movable[0].id);
-      }
+      moveToken(movable[0].id);
     }
   }, [mustMove, currentPlayer, diceValue]);
 
