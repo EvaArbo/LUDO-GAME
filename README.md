@@ -5,7 +5,8 @@ A fun, interactive Ludo board game built with **React**. This project is designe
 ---
 
 ## 📸 Screenshot  
-![Ludo Board Preview](./src/assets/screenshots/ludo-preview.png) <!-- Add your screenshot path -->
+<img width="665" height="962" alt="image" src="https://github.com/user-attachments/assets/a355a97d-9ff4-4665-9967-8e7701558b2c" />
+
 
 ---
 
@@ -82,7 +83,7 @@ A fun, interactive Ludo board game built with **React**. This project is designe
 
 ## 🧱 Folder Structure
 
-```bash
+
 src/
 ├── assets/
 │   ├── Components/
@@ -105,10 +106,8 @@ src/
 └── ...
 🏁 Getting Started
 🔧 Installation
-bash
-Copy
-Edit
-git clone https://github.com/your-username/ludo-react.git
+
+git clone[ https://github.com/your-username/ludo-react.git](https://github.com/EvaArbo/LUDO-GAME/edit/dev)
 cd ludo-react
 npm install
 npm run dev
