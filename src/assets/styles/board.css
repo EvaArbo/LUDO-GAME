@@ -23,9 +23,13 @@
   background-color: white;
   border: 1px solid #bbb;
   box-sizing: border-box;
+  position: relative; /* for token positioning */
 }
 
 /* 🏠 Home Zones */
+.blue-zone {
+  background-color: #aecbfa;
+}
 .red-zone {
   background-color: #f28b82;
 }
@@ -34,9 +38,6 @@
 }
 .yellow-zone {
   background-color: #fdd663;
-}
-.blue-zone {
-  background-color: #aecbfa;
 }
 
 /* 🎯 Center Goals */
@@ -65,6 +66,24 @@
   background: white;
   overflow: hidden;
   border: 2px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ludo-center-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Shared triangle styles */
@@ -76,33 +95,152 @@
 
 /* 🟥 Red - Top Left */
 .triangle-red {
-  top: 0;
-  left: 0;
-  border-right: 20px solid transparent;
-  border-bottom: 20px solid red;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-90deg);
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 15px solid #f28b82;
 }
 
 /* 🟨 Yellow - Bottom Left */
 .triangle-yellow {
-  bottom: 0;
-  left: 0;
-  border-right: 20px solid transparent;
-  border-top: 20px solid yellow;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%) rotate(180deg);
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 15px solid #fdd663;
 }
 
 /* 🟦 Blue - Bottom Right */
 .triangle-blue {
-  bottom: 0;
-  right: 0;
-  border-left: 20px solid transparent;
-  border-top: 20px solid blue;
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 15px solid #aecbfa;
 }
 
 /* 🟩 Green - Top Right */
 .triangle-green {
-  top: 0;
-  right: 0;
-  border-left: 20px solid transparent;
-  border-bottom: 20px solid green;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%) rotate(0deg);
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 15px solid #81c995;
 }
 
+/* 🎯 Home Tokens Centering */
+.cell .home-tokens-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.home-position {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3;
+}
+
+.red-home {
+  top: 0;
+  left: 0;
+}
+
+.green-home {
+  top: 0;
+  right: 0;
+}
+
+.yellow-home {
+  bottom: 0;
+  left: 0;
+}
+
+.blue-home {
+  bottom: 0;
+  right: 0;
+}
+
+/* Center the home-tokens containers absolutely in their home zones */
+.home-tokens {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+.home-tokens-container {
+  width: 80px;
+  height: 80px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 6px;
+  border-radius: 10px;
+  z-index: 2;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+}
+.pawn-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: white;
+  border: 2px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  position: static;
+}
+.home-tokens-container.red {
+  top: 0;
+  left: 0;
+  background-color: rgba(255, 0, 0, 0.2);
+}
+.home-tokens-container.green {
+  top: 0;
+  right: 0;
+  left: auto;
+  background-color: rgba(0, 255, 0, 0.2);
+}
+.home-tokens-container.yellow {
+  bottom: 0;
+  left: 0;
+  top: auto;
+  background-color: rgba(255, 255, 0, 0.2);
+}
+.home-tokens-container.blue {
+  bottom: 0;
+  right: 0;
+  left: auto;
+  top: auto;
+  background-color: rgba(0, 0, 255, 0.2);
+}
+
+/* Color the home stretch paths */
+.red-home-path {
+  background-color: #f28b82 !important;
+}
+.green-home-path {
+  background-color: #81c995 !important;
+}
+.yellow-home-path {
+  background-color: #fdd663 !important;
+}
+.blue-home-path {
+  background-color: #aecbfa !important;
+}
