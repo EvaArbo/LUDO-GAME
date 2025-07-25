@@ -1,25 +1,36 @@
-import React, { useState } from "react";
-import "../styles/board.css";
+import React, { useContext, useState } from "react";
+import { GameContext } from "../../context/GameContext";
 import TurnIndicator from "./TurnIndicator";
+import Dice from "./Dice";
+import WinnerModal from "./WinnerModal";
+import HowToPlay from "./HowToPlay";
+import GamePiece from "./GamePiece";
+import HomeTokens from "./HomeTokens";
+import "../styles/board.css";
+
 
 const Board = () => {
   const size = 15;
-  const players = ["Red", "Green", "Yellow", "Blue"];
-  const [currentPlayer, setCurrentPlayer] = useState("Red");
-  const [scores, setScores] = useState({ Red: 0, Green: 0, Yellow: 0, Blue: 0 });
+  const {
+    currentPlayer,
+    scores,
+    rollDice,
+    diceValue,
+    nextTurn,
+    pieces,
+    handleTokenClick,
+    rollCount,
+    winner,
+    setWinner
+  } = useContext(GameContext);
+
   const [showInstructions, setShowInstructions] = useState(false);
 
-  const nextTurn = () => {
-    const currentIndex = players.indexOf(currentPlayer);
-    const nextPlayer = players[(currentIndex + 1) % players.length];
-    setCurrentPlayer(nextPlayer);
-  };
-
-  const addScore = () => {
-    setScores((prev) => ({
-      ...prev,
-      [currentPlayer]: prev[currentPlayer] + 1,
-    }));
+  const homeTokens = {
+    red: pieces.filter(p => p.player === "Red" && (p.position === null || p.inHomeStretch)),
+    green: pieces.filter(p => p.player === "Green" && (p.position === null || p.inHomeStretch)),
+    yellow: pieces.filter(p => p.player === "Yellow" && (p.position === null || p.inHomeStretch)),
+    blue: pieces.filter(p => p.player === "Blue" && (p.position === null || p.inHomeStretch)),
   };
 
   const cells = [];
@@ -29,71 +40,68 @@ const Board = () => {
       const key = `${row}-${col}`;
       let cellClass = "cell";
 
-      const isRedHome = row < 6 && col < 6;
-      const isGreenHome = row < 6 && col > 8;
+      const isBlueHome = row < 6 && col < 6;
+      const isRedHome = row < 6 && col > 8;
+      const isGreenHome = row > 8 && col > 8;
       const isYellowHome = row > 8 && col < 6;
-      const isBlueHome = row > 8 && col > 8;
-
-      const isHomeCenter = (row === 2 || row === 3) && (col === 2 || col === 3);
-      const isGreenCenter = (row === 2 || row === 3) && (col === 11 || col === 12);
-      const isYellowCenter = (row === 11 || row === 12) && (col === 2 || col === 3);
-      const isBlueCenter = (row === 11 || row === 12) && (col === 11 || col === 12);
 
       if (isRedHome) cellClass += " red-zone";
       else if (isGreenHome) cellClass += " green-zone";
       else if (isYellowHome) cellClass += " yellow-zone";
       else if (isBlueHome) cellClass += " blue-zone";
 
-      if (isHomeCenter) cellClass += " red-center";
-      if (isGreenCenter) cellClass += " green-center";
-      if (isYellowCenter) cellClass += " yellow-center";
-      if (isBlueCenter) cellClass += " blue-center";
+      const isBlueHomeCenter = row === 2 && col === 2;
+      const isRedHomeCenter = row === 2 && col === 12;
+      const isGreenHomeCenter = row === 12 && col === 12;
+      const isYellowHomeCenter = row === 12 && col === 2;
 
-      const isVerticalPath = col === 7 && (row <= 5 || row >= 9);
-      const isHorizontalPath = row === 7 && (col <= 5 || col >= 9);
-      if (isVerticalPath || isHorizontalPath) cellClass += " path";
+      const isPath = (col === 7 && (row <= 5 || row >= 9)) ||
+                     (row === 7 && (col <= 5 || col >= 9)) ||
+                     ((row === 6 || row === 8) && col === 7) ||
+                     ((col === 6 || col === 8) && row === 7);
 
-      const isCenterRow = row === 6 || row === 8;
-      const isCenterCol = col === 6 || col === 8;
-      if ((isCenterRow && col === 7) || (isCenterCol && row === 7)) {
-        cellClass += " center-path";
+      if (isPath) cellClass += " path";
+
+      let homePathClass = "";9999
+      if (col === 7 && row >= 1 && row <= 6) homePathClass = " green-home-path";
+      if (row === 7 && col >= 8 && col <= 13) homePathClass = " red-home-path";
+      if (col === 7 && row >= 8 && row <= 13) homePathClass = " blue-home-path";
+      if (row === 7 && col >= 1 && col <= 6) homePathClass = " yellow-home-path";
+      cellClass += homePathClass;
+
+      if (row === 7 && col === 7) {
+        cells.push(
+          <div key={key} className={`${cellClass} center-cell`}>
+            <div className="ludo-center-circle">
+              <div className="triangle triangle-red" />
+              <div className="triangle triangle-green" />
+              <div className="triangle triangle-yellow" />
+              <div className="triangle triangle-blue" />
+            </div>
+          </div>
+        );
+        continue;
       }
-if (row === 7 && col === 7) {
-  cellClass += " center-cell";
-  cells.push(
-    <div key={key} className={cellClass}>
-      <div className="triangle triangle-red"></div>
-      <div className="triangle triangle-yellow"></div>
-      <div className="triangle triangle-blue"></div>
-      <div className="triangle triangle-green"></div>
-    </div>
-  );
-  continue;
-}
 
+      const pieceAtCell = pieces.find(p => p.position && p.position.x === row && p.position.y === col && !p.inHomeStretch);
 
-
+      let homeTokensComponent = null;
+      if (isBlueHomeCenter) homeTokensComponent = <HomeTokens color="blue" tokens={homeTokens.blue} />;
+      if (isRedHomeCenter) homeTokensComponent = <HomeTokens color="red" tokens={homeTokens.red} />;
+      if (isGreenHomeCenter) homeTokensComponent = <HomeTokens color="green" tokens={homeTokens.green} />;
+      if (isYellowHomeCenter) homeTokensComponent = <HomeTokens color="yellow" tokens={homeTokens.yellow} />;
 
       cells.push(
-        <div key={key} className={cellClass}>
-          {(isHomeCenter || isGreenCenter || isYellowCenter || isBlueCenter) && (
-            <div className="token-grid">
-              {[...Array(4)].map((_, i) => (
-                <div
-                  key={i}
-                  className={`home-token ${
-                    isHomeCenter
-                      ? "red-token"
-                      : isGreenCenter
-                      ? "green-token"
-                      : isYellowCenter
-                      ? "yellow-token"
-                      : "blue-token"
-                  }`}
-                />
-              ))}
-            </div>
+        <div key={key} className={cellClass} style={{position: 'relative'}}>
+          {pieceAtCell && (
+            <GamePiece
+              key={pieceAtCell.id}
+              player={pieceAtCell.player}
+              position={pieceAtCell.position}
+              onClick={() => handleTokenClick(pieceAtCell.id)}
+            />
           )}
+          {homeTokensComponent}
         </div>
       );
     }
@@ -101,49 +109,41 @@ if (row === 7 && col === 7) {
 
   return (
     <div className="board-container">
-      {/* Turn Indicator */}
       <TurnIndicator currentPlayer={currentPlayer} />
 
-      {/* 🏆 Scoreboard */}
       <div className="scoreboard">
-        <h3>Scoreboard</h3>
+        <h3>🏆 Scoreboard</h3>
+        <div style={{marginBottom: '8px', fontWeight: 'bold'}}>Dice Rolls this turn: {rollCount}</div>
         <ul>
-          {players.map((player) => (
+          {Object.entries(scores).map(([player, score]) => (
             <li key={player}>
-              <span className={`player-name ${player.toLowerCase()}`}>{player}</span>: {scores[player]}
+              <span className={`player-name ${player}`}>{player}</span>: {score}
             </li>
           ))}
         </ul>
       </div>
 
-      {/* 🎮 Game Board */}
       <div className="board">{cells}</div>
 
-      {/* ⚙️ Controls */}
       <div className="control-buttons">
-        <button onClick={addScore}>Add Score to {currentPlayer}</button>
-        <button onClick={nextTurn}>End Turn</button>
+        <div className="dice-roll-info">
+          <span className="dice-roll-label">Rolls this turn:</span>
+          <span className="dice-roll-count">{rollCount}</span>
+        </div>
+        <Dice onRoll={rollDice} />
+        <div className="end-turn-wrapper">
+          <button onClick={nextTurn} className="end-turn-btn">End Turn</button>
+        </div>
       </div>
 
-      {/* 📘 How to Play */}
       <div className="instructions">
-        <button className="toggle-instructions" onClick={() => setShowInstructions(!showInstructions)}>
-          {showInstructions ? "Hide How to Play" : "Show How to Play"}
+        <button onClick={() => setShowInstructions(true)} className="toggle-instructions">
+          {showInstructions ? "Hide Instructions" : "How to Play"}
         </button>
-
-        {showInstructions && (
-          <div className="how-to-play">
-            <h3>🎲 How to Play</h3>
-            <ol>
-              <li>Each player rolls the dice to take a turn.</li>
-              <li>Move your piece based on the dice result.</li>
-              <li>Rolling a 6 gives you another turn.</li>
-              <li>Reach the center to score. First to finish wins.</li>
-              <li>You can knock others back to their start!</li>
-            </ol>
-          </div>
-        )}
+        <HowToPlay show={showInstructions} onClose={() => setShowInstructions(false)} />
       </div>
+
+      {winner && <WinnerModal winnerName={winner} onClose={() => setWinner(null)} />}
     </div>
   );
 };

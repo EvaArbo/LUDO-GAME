@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import winningSound from "../sounds/winning-sound.wav";
+import "../styles/modal.css"
 
 const winAudio = new Audio(winningSound);
 
