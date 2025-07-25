@@ -26,21 +26,12 @@ const Board = () => {
 
   const [showInstructions, setShowInstructions] = useState(false);
 
-  // Filter tokens at home for each color
   const homeTokens = {
     red: pieces.filter(p => p.player === "Red" && (p.position === null || p.inHomeStretch)),
     green: pieces.filter(p => p.player === "Green" && (p.position === null || p.inHomeStretch)),
     yellow: pieces.filter(p => p.player === "Yellow" && (p.position === null || p.inHomeStretch)),
     blue: pieces.filter(p => p.player === "Blue" && (p.position === null || p.inHomeStretch)),
   };
-
-  // Debug: Log homeTokens for each color with full details
-  console.log('Board homeTokens:', {
-    red: homeTokens.red.map(t => ({id: t.id, homeIndex: t.homeIndex, inHomeStretch: t.inHomeStretch, position: t.position})),
-    green: homeTokens.green.map(t => ({id: t.id, homeIndex: t.homeIndex, inHomeStretch: t.inHomeStretch, position: t.position})),
-    yellow: homeTokens.yellow.map(t => ({id: t.id, homeIndex: t.homeIndex, inHomeStretch: t.inHomeStretch, position: t.position})),
-    blue: homeTokens.blue.map(t => ({id: t.id, homeIndex: t.homeIndex, inHomeStretch: t.inHomeStretch, position: t.position})),
-  });
 
   const cells = [];
 
@@ -49,7 +40,6 @@ const Board = () => {
       const key = `${row}-${col}`;
       let cellClass = "cell";
 
-      // Home zone logic (swap positions)
       const isBlueHome = row < 6 && col < 6;
       const isRedHome = row < 6 && col > 8;
       const isGreenHome = row > 8 && col > 8;
@@ -60,13 +50,11 @@ const Board = () => {
       else if (isYellowHome) cellClass += " yellow-zone";
       else if (isBlueHome) cellClass += " blue-zone";
 
-      // Center of each home zone for HomeTokens (swap accordingly)
       const isBlueHomeCenter = row === 2 && col === 2;
       const isRedHomeCenter = row === 2 && col === 12;
       const isGreenHomeCenter = row === 12 && col === 12;
       const isYellowHomeCenter = row === 12 && col === 2;
 
-      // Path to the center triangle
       const isPath = (col === 7 && (row <= 5 || row >= 9)) ||
                      (row === 7 && (col <= 5 || col >= 9)) ||
                      ((row === 6 || row === 8) && col === 7) ||
@@ -74,19 +62,17 @@ const Board = () => {
 
       if (isPath) cellClass += " path";
 
-      // Color home stretch paths (start directly from home squares, no gap)
       let homePathClass = "";
-      // Green home path: top-right (horizontal, col 9-14)
-      if (row === 7 && col >= 9 && col <= 14) homePathClass = " green-home-path";
-      // Red home path: top-left (vertical, row 1-6)
-      if (col === 7 && row >= 1 && row <= 6) homePathClass = " red-home-path";
-      // Blue home path: bottom-left (horizontal, col 1-6)
-      if (row === 7 && col >= 1 && col <= 6) homePathClass = " blue-home-path";
-      // Yellow home path: bottom-right (vertical, row 9-14)
-      if (col === 7 && row >= 9 && row <= 14) homePathClass = " yellow-home-path";
+      // Green home path: vertical, col 7, rows 1-6 (top to center)
+      if (col === 7 && row >= 1 && row <= 6) homePathClass = " green-home-path";
+      // Red home path: horizontal, row 7, cols 8-13 (left to center)
+      if (row === 7 && col >= 8 && col <= 13) homePathClass = " red-home-path";
+      // Blue home path: vertical, col 7, rows 8-13 (bottom to center)
+      if (col === 7 && row >= 8 && row <= 13) homePathClass = " blue-home-path";
+      // Yellow home path: horizontal, row 7, cols 1-6 (right to center)
+      if (row === 7 && col >= 1 && col <= 6) homePathClass = " yellow-home-path";
       cellClass += homePathClass;
 
-      // Center triangle decoration
       if (row === 7 && col === 7) {
         cells.push(
           <div key={key} className={`${cellClass} center-cell`}>
@@ -101,10 +87,8 @@ const Board = () => {
         continue;
       }
 
-      // Render game pieces
       const pieceAtCell = pieces.find(p => p.position && p.position.x === row && p.position.y === col && !p.inHomeStretch);
 
-      // Render HomeTokens in the center of each home zone (swap accordingly)
       let homeTokensComponent = null;
       if (isBlueHomeCenter) homeTokensComponent = <HomeTokens color="blue" tokens={homeTokens.blue} />;
       if (isRedHomeCenter) homeTokensComponent = <HomeTokens color="red" tokens={homeTokens.red} />;
@@ -146,8 +130,14 @@ const Board = () => {
       <div className="board">{cells}</div>
 
       <div className="control-buttons">
+        <div className="dice-roll-info">
+          <span className="dice-roll-label">Rolls this turn:</span>
+          <span className="dice-roll-count">{rollCount}</span>
+        </div>
         <Dice onRoll={rollDice} />
-        <button onClick={nextTurn}>End Turn</button>
+        <div className="end-turn-wrapper">
+          <button onClick={nextTurn} className="end-turn-btn">End Turn</button>
+        </div>
       </div>
 
       <div className="instructions">

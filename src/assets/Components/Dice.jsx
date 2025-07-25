@@ -1,7 +1,6 @@
 import React, { useContext, useState } from "react";
 import { GameContext } from "../../context/GameContext"; 
 import diceRollSound from "../sounds/dice-roll.m4a";
-
 import "../styles/dice.css";
 import dice1 from "../images/dice-1.svg";
 import dice2 from "../images/dice-2.svg";
@@ -31,24 +30,19 @@ function Dice() {
   const handleRoll = () => {
     const audio = new Audio(diceRollSound);
     audio.play();
-
     setRolling(true);
-    rollDice(); // This will update diceValue inside context
-
+    rollDice();
     setTimeout(() => {
       setRolling(false);
-      // Do NOT call switchTurn here — context already handles turn switching
     }, 1000);
   };
 
   return (
     <div className="dice-container">
       <h3>🎯 Player: {currentPlayer?.toUpperCase()}</h3>
-
       <button className="dice-button" onClick={handleRoll} disabled={rolling}>
         {rolling ? "Rolling..." : "Roll Dice 🎲"}
       </button>
-
       {diceValue && (
         <img
           src={diceImages[diceValue]}

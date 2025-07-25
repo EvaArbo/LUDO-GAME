@@ -1,4 +1,3 @@
-// Shared global path (clockwise starting from Red's entry point)
 const fullPath = [
   { x: 0, y: 6 }, { x: 1, y: 6 }, { x: 2, y: 6 }, { x: 3, y: 6 }, { x: 4, y: 6 }, { x: 5, y: 6 },
   { x: 6, y: 6 }, { x: 6, y: 5 }, { x: 6, y: 4 }, { x: 6, y: 3 }, { x: 6, y: 2 }, { x: 6, y: 1 },
@@ -12,7 +11,6 @@ const fullPath = [
   { x: 0, y: 8 }, { x: 0, y: 7 }, { x: 0, y: 6 }
 ];
 
-// Map each player to a rotated version of the full path
 export const boardPath = {
   Red: [...fullPath],
   Green: [...fullPath.slice(13), ...fullPath.slice(0, 13)],
@@ -20,7 +18,6 @@ export const boardPath = {
   Blue: [...fullPath.slice(39), ...fullPath.slice(0, 39)],
 };
 
-// Home stretches leading to center (7,7)
 export const homeStretches = {
   Red: [
     { x: 1, y: 7 }, { x: 2, y: 7 }, { x: 3, y: 7 },
@@ -40,7 +37,6 @@ export const homeStretches = {
   ],
 };
 
-// Helper to move piece forward
 export const movePiece = (player, currentIndex, diceRoll, inHomeStretch) => {
   const path = boardPath[player];
   const stretch = homeStretches[player];
@@ -62,21 +58,18 @@ export const movePiece = (player, currentIndex, diceRoll, inHomeStretch) => {
   };
 };
 
-// Get visual board layout for rendering
 export const getBoardLayout = (size = 15) => {
   const layout = [];
   for (let y = 0; y < size; y++) {
     const row = [];
     for (let x = 0; x < size; x++) {
-      row.push(""); // You can mark path cells later
+      row.push("");
     }
     layout.push(row);
   }
   return layout;
 };
 
-// Dice utility
 export function rollDice() {
   return Math.floor(Math.random() * 6) + 1;
 }
-                                                                              

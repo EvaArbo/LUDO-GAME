@@ -40,7 +40,6 @@
   100% { transform: rotate(0deg); }
 }
 
-/* Home zone styles */
 .home-square {
   display: flex;
   justify-content: center;

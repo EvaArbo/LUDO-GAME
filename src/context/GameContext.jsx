@@ -1,7 +1,7 @@
 import React, { createContext, useState } from "react";
 import { boardPath, homeStretches } from "../utils/movement.js";
+import * as gameRules from "../utils/gameRules.js";
 
-// Initial home positions for all tokens
 const initialPositions = {
   Red: [
     { id: "red-0", player: "Red", index: 0, position: null },
@@ -53,9 +53,14 @@ export const GameProvider = ({ children }) => {
     const value = Math.floor(Math.random() * 6) + 1;
     setDiceValue(value);
     setRollCount((prev) => prev + 1);
-    // If six and a move is possible, require move before next roll
-    if (value === 6 && getMovableTokens(currentPlayer, 6).length > 0) {
-      setMustMove(true);
+    if (value === 6) {
+      setScores((prevScores) => ({
+        ...prevScores,
+        [currentPlayer]: prevScores[currentPlayer] + 1,
+      }));
+      if (getMovableTokens(currentPlayer, 6).length > 0) {
+        setMustMove(true);
+      }
     }
     return value;
   };
@@ -64,13 +69,16 @@ export const GameProvider = ({ children }) => {
     const order = ["Red", "Green", "Yellow", "Blue"];
     const nextIndex = (order.indexOf(currentPlayer) + 1) % order.length;
     setCurrentPlayer(order[nextIndex]);
-    setDiceValue(null); // reset dice
-    setRollCount(0); // reset roll count
+    setDiceValue(null); 
   };
+
+  // Reset rollCount only when currentPlayer changes
+  React.useEffect(() => {
+    setRollCount(0);
+  }, [currentPlayer]);
 
   const moveToken = (id) => {
     if (!diceValue) return;
-    console.log(`[moveToken] Called for token id: ${id}, diceValue: ${diceValue}, currentPlayer: ${currentPlayer}`);
     setMustMove(false);
     setPieces((prev) => {
       let scored = false;
@@ -80,43 +88,58 @@ export const GameProvider = ({ children }) => {
           let inHomeStretch = piece.inHomeStretch || false;
           let homeIndex = piece.homeIndex;
 
+          // If token is at home
           if (piece.position === null) {
-            currentIndex = 0;
-            inHomeStretch = false;
-            homeIndex = undefined;
+            if (diceValue === 6) {
+              // Enter the board
+              const path = boardPath[piece.player];
+              return {
+                ...piece,
+                position: path[0],
+                pathIndex: 0,
+                inHomeStretch: false,
+                homeIndex: undefined,
+              };
+            } else {
+              return piece;
+            }
           }
 
+          // If token is on the board or in home stretch
           const path = boardPath[piece.player];
           const stretch = homeStretches[piece.player];
           const maxIndex = path.length + stretch.length - 1;
           const newIndex = currentIndex + diceValue;
 
-          // Prevent moving finished tokens
-          if (piece.inHomeStretch && piece.homeIndex === 3 && currentIndex === maxIndex) return piece;
-
-          if (newIndex > maxIndex) return piece; // can't move
+          // Check if move is valid
+          if (!gameRules.canMove(currentIndex, diceValue, inHomeStretch)) return piece;
 
           let newPosition, newHomeIndex;
-          if (newIndex < path.length) {
+          if (inHomeStretch || newIndex >= path.length) {
+            // Enter or continue in home stretch
+            const stretchIndex = inHomeStretch ? currentIndex - path.length + diceValue : newIndex - path.length;
+            if (stretchIndex >= stretch.length) return piece;
+            newPosition = stretch[stretchIndex];
+            inHomeStretch = true;
+            newHomeIndex = stretchIndex;
+            // Check for exact finish
+            if (gameRules.isExactFinish(currentIndex, diceValue, true)) {
+              scored = true;
+            }
+          } else {
+            // Move along the main path
             newPosition = path[newIndex];
             inHomeStretch = false;
             newHomeIndex = undefined;
-          } else {
-            newPosition = stretch[newIndex - path.length];
-            inHomeStretch = true;
-            newHomeIndex = Math.max(0, Math.min(newIndex - path.length, 3));
-            if (newHomeIndex === 3 && (newIndex === maxIndex)) {
-              scored = true;
-            }
           }
 
-          // Prevent moving to a cell already occupied by own token (except center)
-          if (newPosition && !(inHomeStretch && newHomeIndex === 3)) {
+          // Block move if own token is on the destination
+          if (newPosition && !inHomeStretch) {
             const occupiedByOwn = prev.some(p => p.id !== piece.id && p.player === currentPlayer && p.position && p.position.x === newPosition.x && p.position.y === newPosition.y);
             if (occupiedByOwn) return piece;
           }
 
-          // Send opponent's token home if landed on (not in home stretch)
+          // Capture opponent's token if present
           let newPrev = prev.map(p => {
             if (
               p.id !== piece.id &&
@@ -133,13 +156,12 @@ export const GameProvider = ({ children }) => {
             return p;
           });
 
-          // Update this piece
           newPrev = newPrev.map(p =>
             p.id === piece.id
               ? {
                   ...p,
                   position: newPosition,
-                  pathIndex: newIndex,
+                  pathIndex: inHomeStretch ? path.length + newHomeIndex : newIndex,
                   inHomeStretch,
                   homeIndex: newHomeIndex,
                 }
@@ -156,12 +178,10 @@ export const GameProvider = ({ children }) => {
           [currentPlayer]: prevScores[currentPlayer] + 1,
         }));
       }
-      // Auto-check winner
       const winnerEntry = Object.entries(scores).find(([player, score]) => score >= 4);
       if (winnerEntry && !winner) {
         setWinner(winnerEntry[0]);
       }
-      console.log('[moveToken] Updated pieces:', updated);
       return updated;
     });
     if (diceValue !== 6) nextTurn();
@@ -178,7 +198,6 @@ export const GameProvider = ({ children }) => {
     moveToken(id);
   };
 
-  // Helper: get movable tokens for a player
   const getMovableTokens = (player, dice) => {
     return pieces.filter(p => p.player === player && (
       (p.position === null && dice === 6) ||
@@ -186,26 +205,22 @@ export const GameProvider = ({ children }) => {
     ));
   };
 
-  // Auto-move logic: if mustMove is true and there are movable tokens, move the first one automatically
   React.useEffect(() => {
-    if (mustMove && diceValue && getMovableTokens(currentPlayer, diceValue).length > 0) {
+    // Only auto-move for computer players
+    if (computerPlayers.includes(currentPlayer) && mustMove && diceValue && getMovableTokens(currentPlayer, diceValue).length > 0) {
       const movable = getMovableTokens(currentPlayer, diceValue);
       moveToken(movable[0].id);
     }
   }, [mustMove, currentPlayer, diceValue]);
 
-  // Computer turn logic
   React.useEffect(() => {
     if (computerPlayers.includes(currentPlayer) && !mustMove) {
-      console.log(`[AI] Computer turn for ${currentPlayer}`);
       const timer = setTimeout(() => {
         const dice = rollDice();
-        console.log(`[AI] ${currentPlayer} rolled a ${dice}`);
         setTimeout(() => {
           const movable = getMovableTokens(currentPlayer, dice);
           let moved = false;
           for (let i = 0; i < movable.length; i++) {
-            // Simulate moveToken logic for each token
             const piece = movable[i];
             let currentIndex = piece.pathIndex ?? 0;
             let inHomeStretch = piece.inHomeStretch || false;
@@ -231,38 +246,30 @@ export const GameProvider = ({ children }) => {
               const occupiedByOwn = pieces.some(p => p.id !== piece.id && p.player === currentPlayer && p.position && p.position.x === newPosition.x && p.position.y === newPosition.y);
               if (occupiedByOwn) continue;
             }
-            // If we reach here, this token can move
-            console.log(`[AI] ${currentPlayer} moving token id: ${piece.id}`);
             handleTokenClick(piece.id);
             moved = true;
             break;
           }
           if (!moved) {
-            console.log(`[AI] ${currentPlayer} has no valid moves, ending turn.`);
             nextTurn();
           }
-        }, 800);
-      }, 1000);
+        }, 600);
+      }, 800);
       return () => clearTimeout(timer);
     }
-  }, [currentPlayer, mustMove]);
+  }, [currentPlayer, mustMove, pieces]);
 
   return (
     <GameContext.Provider
       value={{
         currentPlayer,
-        diceValue,
-        pieces,
-        rollDice: humanPlayer === currentPlayer && !mustMove ? rollDice : () => {},
-        nextTurn,
         scores,
-        addScore,
-        handleTokenClick: humanPlayer === currentPlayer ? handleTokenClick : () => {},
-        setDiceValue,
-        setCurrentPlayer,
+        rollDice,
+        diceValue,
+        nextTurn,
+        pieces,
+        handleTokenClick,
         rollCount,
-        humanPlayer,
-        computerPlayers,
         winner,
         setWinner,
         mustMove,

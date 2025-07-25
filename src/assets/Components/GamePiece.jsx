@@ -1,23 +1,30 @@
 import React from "react";
 
+const symbols = {
+  Red: "🅁",
+  Green: "🄶",
+  Yellow: "🅈",
+  Blue: "🄱",
+};
+
 const GamePiece = ({ player, position, onClick }) => {
   if (!position) return null;
   return (
     <div
       className="token"
       style={{
-        position: "absolute",
-        left: `${position.y * 40}px`,
-        top: `${position.x * 40}px`,
-        width: "30px",
-        height: "30px",
-        backgroundColor: player.toLowerCase(),
-        borderRadius: "50%",
+        width: "32px",
+        height: "32px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        margin: "auto",
         cursor: "pointer",
-        border: "2px solid black",
       }}
       onClick={onClick}
-    />
+    >
+      <span style={{ fontSize: "2rem", lineHeight: 1 }}>{symbols[player]}</span>
+    </div>
   );
 };
 

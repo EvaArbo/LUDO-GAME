@@ -6,7 +6,7 @@ describe("calculateNewPosition", () => {
   });
 
   it("does not move if new position exceeds board size", () => {
-    expect(calculateNewPosition(55, 4)).toBe(55); // Exceeds 56
+    expect(calculateNewPosition(55, 4)).toBe(55);
   });
 
   it("lands on final square exactly", () => {
