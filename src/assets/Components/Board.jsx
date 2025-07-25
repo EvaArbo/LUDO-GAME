@@ -62,14 +62,10 @@ const Board = () => {
 
       if (isPath) cellClass += " path";
 
-      let homePathClass = "";
-      // Green home path: vertical, col 7, rows 1-6 (top to center)
+      let homePathClass = "";9999
       if (col === 7 && row >= 1 && row <= 6) homePathClass = " green-home-path";
-      // Red home path: horizontal, row 7, cols 8-13 (left to center)
       if (row === 7 && col >= 8 && col <= 13) homePathClass = " red-home-path";
-      // Blue home path: vertical, col 7, rows 8-13 (bottom to center)
       if (col === 7 && row >= 8 && row <= 13) homePathClass = " blue-home-path";
-      // Yellow home path: horizontal, row 7, cols 1-6 (right to center)
       if (row === 7 && col >= 1 && col <= 6) homePathClass = " yellow-home-path";
       cellClass += homePathClass;
 
