@@ -6,7 +6,9 @@ import WinnerModal from "./WinnerModal";
 import HowToPlay from "./HowToPlay";
 import GamePiece from "./GamePiece";
 import HomeTokens from "./HomeTokens";
+import HomeTriangles from "./HomeTriangles";
 import "../styles/board.css";
+import { boardPath } from "../../utils/movement.js";
 
 
 const Board = () => {
@@ -15,7 +17,6 @@ const Board = () => {
     currentPlayer,
     scores,
     rollDice,
-    diceValue,
     nextTurn,
     pieces,
     handleTokenClick,
@@ -27,10 +28,10 @@ const Board = () => {
   const [showInstructions, setShowInstructions] = useState(false);
 
   const homeTokens = {
-    red: pieces.filter(p => p.player === "Red" && (p.position === null || p.inHomeStretch)),
-    green: pieces.filter(p => p.player === "Green" && (p.position === null || p.inHomeStretch)),
-    yellow: pieces.filter(p => p.player === "Yellow" && (p.position === null || p.inHomeStretch)),
-    blue: pieces.filter(p => p.player === "Blue" && (p.position === null || p.inHomeStretch)),
+  red: pieces.filter(p => p.player === "Red" && p.position === null),
+  green: pieces.filter(p => p.player === "Green" && p.position === null),
+  yellow: pieces.filter(p => p.player === "Yellow" && p.position === null),
+  blue: pieces.filter(p => p.player === "Blue" && p.position === null),
   };
 
   const cells = [];
@@ -62,28 +63,28 @@ const Board = () => {
 
       if (isPath) cellClass += " path";
 
-      let homePathClass = "";9999
-      if (col === 7 && row >= 1 && row <= 6) homePathClass = " green-home-path";
-      if (row === 7 && col >= 8 && col <= 13) homePathClass = " red-home-path";
-      if (col === 7 && row >= 8 && row <= 13) homePathClass = " blue-home-path";
-      if (row === 7 && col >= 1 && col <= 6) homePathClass = " yellow-home-path";
+  let homePathClass = "";
+  // Assign home-stretch sides to match player start positions:
+  // Red: top -> row 1..6 at col 7
+  // Green: right -> col 8..13 at row 7
+  // Blue: bottom -> row 8..13 at col 7
+  // Yellow: left -> col 1..6 at row 7
+  if (col === 7 && row >= 1 && row <= 6) homePathClass = " red-home-path";
+  if (row === 7 && col >= 8 && col <= 13) homePathClass = " green-home-path";
+  if (col === 7 && row >= 8 && row <= 13) homePathClass = " yellow-home-path";
+  if (row === 7 && col >= 1 && col <= 6) homePathClass = " blue-home-path";
       cellClass += homePathClass;
 
       if (row === 7 && col === 7) {
+        // Leave the center cell empty; a larger centered overlay will draw the triangles
         cells.push(
-          <div key={key} className={`${cellClass} center-cell`}>
-            <div className="ludo-center-circle">
-              <div className="triangle triangle-red" />
-              <div className="triangle triangle-green" />
-              <div className="triangle triangle-yellow" />
-              <div className="triangle triangle-blue" />
-            </div>
-          </div>
+          <div key={key} className={`${cellClass} center-cell`} />
         );
         continue;
       }
 
-      const pieceAtCell = pieces.find(p => p.position && p.position.x === row && p.position.y === col && !p.inHomeStretch);
+  // movement coordinates are stored as { x: rowIndex, y: colIndex } in movement.js
+  const pieceAtCell = pieces.find(p => p.position && p.position.x === row && p.position.y === col && !p.inHomeStretch);
 
       let homeTokensComponent = null;
       if (isBlueHomeCenter) homeTokensComponent = <HomeTokens color="blue" tokens={homeTokens.blue} />;
@@ -123,9 +124,16 @@ const Board = () => {
         </ul>
       </div>
 
-      <div className="board">{cells}</div>
+      <div className="board">{cells}
+        <HomeTriangles />
 
-      <div className="control-buttons">
+        
+
+      </div>
+
+      
+
+  <div className="control-buttons">
         <div className="dice-roll-info">
           <span className="dice-roll-label">Rolls this turn:</span>
           <span className="dice-roll-count">{rollCount}</span>
@@ -142,6 +150,8 @@ const Board = () => {
         </button>
         <HowToPlay show={showInstructions} onClose={() => setShowInstructions(false)} />
       </div>
+
+      
 
       {winner && <WinnerModal winnerName={winner} onClose={() => setWinner(null)} />}
     </div>

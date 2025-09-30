@@ -24,6 +24,7 @@ function Dice() {
     rollDice,
     currentPlayer,
   } = useContext(GameContext);
+  const { mustMove } = useContext(GameContext);
 
   const [rolling, setRolling] = useState(false);
 
@@ -40,9 +41,18 @@ function Dice() {
   return (
     <div className="dice-container">
       <h3>🎯 Player: {currentPlayer?.toUpperCase()}</h3>
-      <button className="dice-button" onClick={handleRoll} disabled={rolling}>
-        {rolling ? "Rolling..." : "Roll Dice 🎲"}
-      </button>
+      {
+        (() => {
+          const isHumanTurn = currentPlayer && currentPlayer.toLowerCase() === 'red';
+          const disabled = rolling || mustMove || !isHumanTurn;
+          const label = !isHumanTurn ? "Computer's turn" : (mustMove ? "Move required" : (rolling ? "Rolling..." : "Roll Dice 🎲"));
+          return (
+            <button className="dice-button" onClick={handleRoll} disabled={disabled}>
+              {label}
+            </button>
+          );
+        })()
+      }
       {diceValue && (
         <img
           src={diceImages[diceValue]}

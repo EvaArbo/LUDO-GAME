@@ -55,6 +55,7 @@
   border-radius: 18px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.13);
   position: relative;
+  overflow: visible; /* allow overlays (center triangles) to extend beyond cells */
 }
 
 .cell {

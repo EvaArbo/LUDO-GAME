@@ -1,50 +1,69 @@
-.triangle-wrapper {
+.home-triangle-wrapper {
+  /* Use the same cell size as the board grid for consistent scaling */
+  --cell-size: 40px;
+  --wrapper-size: calc(var(--cell-size) * 3); /* covers the 3x3 center */
   position: absolute;
-  top: calc(50% - 60px); 
-  left: calc(50% - 60px);
-  width: 120px;
-  height: 120px;
-  z-index: 10;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--wrapper-size);
+  height: var(--wrapper-size);
+  z-index: 60;
   pointer-events: none;
 }
 
-.triangle {
+.home-triangle {
   position: absolute;
-  width: 0;
-  height: 0;
 }
 
-.red-triangle {
+/* Top triangle (Red) - points downward into center */
+.home-red {
   top: 0;
-  left: 30px;
-  border-left: 30px solid transparent;
-  border-right: 30px solid transparent;
-  border-bottom: 60px solid red;
-}
-
-
-.green-triangle {
-  bottom: 0;
-  left: 30px;
-  border-left: 30px solid transparent;
-  border-right: 30px solid transparent;
-  border-top: 60px solid green;
-}
-
-
-.yellow-triangle {
   left: 0;
-  top: 30px;
-  border-top: 30px solid transparent;
-  border-bottom: 30px solid transparent;
-  border-right: 60px solid yellow;
+  width: 100%;
+  height: 50%;
+  background: #ff6f61;
+  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
 }
 
-
-.blue-triangle {
+/* Right triangle (Green) - points left into center */
+.home-green {
+  top: 0;
   right: 0;
-  top: 30px;
-  border-top: 30px solid transparent;
-  border-bottom: 30px solid transparent;
-  border-left: 60px solid blue;
+  width: 50%;
+  height: 100%;
+  background: #7ed957;
+  clip-path: polygon(100% 0%, 0% 50%, 100% 100%);
+}
+
+/* Bottom triangle (Yellow) - points upward into center */
+.home-yellow {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: #ffe066;
+  clip-path: polygon(0% 100%, 100% 100%, 50% 0%);
+}
+
+/* Left triangle (Blue) - points right into center */
+.home-blue {
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: #4fc3f7;
+  clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
+}
+
+.home-center-diamond {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: calc(var(--wrapper-size) / 8);
+  height: calc(var(--wrapper-size) / 8);
+  background: #222;
+  z-index: 70;
+  pointer-events: none;
 }

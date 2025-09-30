@@ -1,29 +1,13 @@
 import React from "react";
+import "../styles/gamepiece.css";
 
-const symbols = {
-  Red: "🅁",
-  Green: "🄶",
-  Yellow: "🅈",
-  Blue: "🄱",
-};
+const colorClass = (player) => player ? player.toLowerCase() : '';
 
 const GamePiece = ({ player, position, onClick }) => {
   if (!position) return null;
   return (
-    <div
-      className="token"
-      style={{
-        width: "32px",
-        height: "32px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        margin: "auto",
-        cursor: "pointer",
-      }}
-      onClick={onClick}
-    >
-      <span style={{ fontSize: "2rem", lineHeight: 1 }}>{symbols[player]}</span>
+    <div className={`game-piece ${colorClass(player)}`} onClick={onClick}>
+      <span className="piece-text">{player ? player[0] : ''}</span>
     </div>
   );
 };

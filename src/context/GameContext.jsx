@@ -1,280 +1,164 @@
-import React, { createContext, useState } from "react";
-import { boardPath, homeStretches } from "../utils/movement.js";
-import * as gameRules from "../utils/gameRules.js";
-
-const initialPositions = {
-  Red: [
-    { id: "red-0", player: "Red", index: 0, position: null },
-    { id: "red-1", player: "Red", index: 1, position: null },
-    { id: "red-2", player: "Red", index: 2, position: null },
-    { id: "red-3", player: "Red", index: 3, position: null },
-  ],
-  Green: [
-    { id: "green-0", player: "Green", index: 0, position: null },
-    { id: "green-1", player: "Green", index: 1, position: null },
-    { id: "green-2", player: "Green", index: 2, position: null },
-    { id: "green-3", player: "Green", index: 3, position: null },
-  ],
-  Yellow: [
-    { id: "yellow-0", player: "Yellow", index: 0, position: null },
-    { id: "yellow-1", player: "Yellow", index: 1, position: null },
-    { id: "yellow-2", player: "Yellow", index: 2, position: null },
-    { id: "yellow-3", player: "Yellow", index: 3, position: null },
-  ],
-  Blue: [
-    { id: "blue-0", player: "Blue", index: 0, position: null },
-    { id: "blue-1", player: "Blue", index: 1, position: null },
-    { id: "blue-2", player: "Blue", index: 2, position: null },
-    { id: "blue-3", player: "Blue", index: 3, position: null },
-  ],
-};
+import React, { createContext, useState, useEffect, useCallback } from 'react';
+import { boardPath, homeStretches, movePiece } from '../utils/movement.js';
 
 export const GameContext = createContext();
 
-const humanPlayer = "Red";
-const computerPlayers = ["Green", "Yellow", "Blue"];
+const initialPieces = () => {
+  const make = (player, prefix) =>
+    Array.from({ length: 4 }).map((_, i) => ({ id: `${prefix}-${i}`, player, position: null, pathIndex: undefined, inHomeStretch: false, homeIndex: undefined }));
+  return [...make('Red', 'red'), ...make('Green', 'green'), ...make('Yellow', 'yellow'), ...make('Blue', 'blue')];
+};
+
+const computerPlayers = ['Green', 'Yellow', 'Blue'];
 
 export const GameProvider = ({ children }) => {
-  const [currentPlayer, setCurrentPlayer] = useState("Red");
+  const [currentPlayer, setCurrentPlayer] = useState('Red');
   const [diceValue, setDiceValue] = useState(null);
+  const [pieces, setPieces] = useState(initialPieces());
   const [scores, setScores] = useState({ Red: 0, Green: 0, Yellow: 0, Blue: 0 });
-  const [pieces, setPieces] = useState([
-    ...initialPositions.Red,
-    ...initialPositions.Green,
-    ...initialPositions.Yellow,
-    ...initialPositions.Blue,
-  ]);
-  const [rollCount, setRollCount] = useState(0);
-  const [winner, setWinner] = useState(null);
   const [mustMove, setMustMove] = useState(false);
+  const [winner, setWinner] = useState(null);
+  const [rollCount, setRollCount] = useState(0);
 
-  const rollDice = () => {
-    if (mustMove) return;
-    const value = Math.floor(Math.random() * 6) + 1;
-    setDiceValue(value);
-    setRollCount((prev) => prev + 1);
-    if (value === 6) {
-      setScores((prevScores) => ({
-        ...prevScores,
-        [currentPlayer]: prevScores[currentPlayer] + 1,
-      }));
-      if (getMovableTokens(currentPlayer, 6).length > 0) {
-        setMustMove(true);
+  const getMovableTokens = useCallback((player, dice) => {
+    return pieces.filter((p) => p.player === player && (
+      (p.position === null && dice === 6) ||
+      (p.position !== null && (!p.inHomeStretch || (p.inHomeStretch && (p.homeIndex ?? 0) < homeStretches[player].length - 1)))
+    ));
+  }, [pieces]);
+
+  const rollDice = useCallback(() => {
+    if (mustMove) return null;
+    const v = Math.floor(Math.random() * 6) + 1;
+    setDiceValue(v);
+    setRollCount((r) => r + 1);
+    if (v === 6) {
+      const movable = getMovableTokens(currentPlayer, v);
+      if (movable.length > 0) {
+        // For the human player (Red) auto-place the first home token so users see movement immediately.
+        // For AI players, keep mustMove so the existing auto-play effect triggers.
+        if (currentPlayer === 'Red') {
+          setPieces((prev) => {
+            const piece = prev.find((p) => p.player === currentPlayer && p.position === null);
+            if (!piece) return prev;
+            const path = boardPath[currentPlayer];
+            if (!path || path.length === 0) return prev;
+            const entry = path[0];
+            return prev.map((p) => p.id === piece.id ? { ...p, position: { x: entry.x, y: entry.y }, pathIndex: 0, inHomeStretch: false, homeIndex: undefined } : p);
+          });
+        } else {
+          setMustMove(true);
+        }
       }
     }
-    return value;
-  };
+    return v;
+  }, [mustMove, currentPlayer, getMovableTokens]);
 
   const nextTurn = () => {
-    const order = ["Red", "Green", "Yellow", "Blue"];
-    const nextIndex = (order.indexOf(currentPlayer) + 1) % order.length;
-    setCurrentPlayer(order[nextIndex]);
-    setDiceValue(null); 
+    const order = ['Red', 'Green', 'Yellow', 'Blue'];
+    setDiceValue(null);
+    setMustMove(false);
+    setCurrentPlayer((prev) => order[(order.indexOf(prev) + 1) % order.length]);
   };
 
-  // Reset rollCount only when currentPlayer changes
-  React.useEffect(() => {
-    setRollCount(0);
-  }, [currentPlayer]);
-
-  const moveToken = (id) => {
+  const placeAtEntry = (piece) => {
+    const path = boardPath[piece.player];
+    if (!path || path.length === 0) return piece;
+    const entry = path[0];
+    return { ...piece, position: { x: entry.x, y: entry.y }, pathIndex: 0, inHomeStretch: false, homeIndex: undefined };
+  };
+  const performMove = useCallback((pieceId) => {
     if (!diceValue) return;
     setMustMove(false);
+    let scored = false;
     setPieces((prev) => {
-      let scored = false;
-      let updated = prev.map((piece) => {
-        if (piece.id === id && piece.player === currentPlayer) {
-          let currentIndex = piece.pathIndex ?? 0;
-          let inHomeStretch = piece.inHomeStretch || false;
-          let homeIndex = piece.homeIndex;
+      const piece = prev.find((p) => p.id === pieceId && p.player === currentPlayer);
+      if (!piece) return prev;
 
-          // If token is at home
-          if (piece.position === null) {
-            if (diceValue === 6) {
-              // Enter the board
-              const path = boardPath[piece.player];
-              return {
-                ...piece,
-                position: path[0],
-                pathIndex: 0,
-                inHomeStretch: false,
-                homeIndex: undefined,
-              };
-            } else {
-              return piece;
-            }
+      // Leaving home
+      if (piece.position === null) {
+        if (diceValue !== 6) return prev;
+        const updatedPiece = placeAtEntry(piece);
+        const newPrev = prev.map((p) => {
+          if (p.id !== piece.id && p.position && p.position.x === updatedPiece.position.x && p.position.y === updatedPiece.position.y && !p.inHomeStretch && p.player !== currentPlayer) {
+            return { ...p, position: null, pathIndex: undefined, inHomeStretch: false, homeIndex: undefined };
           }
+          return p;
+        }).map((p) => (p.id === updatedPiece.id ? updatedPiece : p));
+        return newPrev;
+      }
 
-          // If token is on the board or in home stretch
-          const path = boardPath[piece.player];
-          const stretch = homeStretches[piece.player];
-          const maxIndex = path.length + stretch.length - 1;
-          const newIndex = currentIndex + diceValue;
+      const currentIndex = typeof piece.pathIndex === 'number' ? piece.pathIndex : boardPath[piece.player].findIndex((q) => q.x === piece.position.x && q.y === piece.position.y);
+      const result = movePiece(piece.player, currentIndex, diceValue);
+      if (!result) return prev;
 
-          // Check if move is valid
-          if (!gameRules.canMove(currentIndex, diceValue, inHomeStretch)) return piece;
+      // detect scoring: landing on the final cell of the stretch
+      const path = boardPath[piece.player];
+      const stretch = homeStretches[piece.player] || [];
+      const finalIndex = path.length + stretch.length - 1;
+      if (result.newIndex === finalIndex) scored = true;
 
-          let newPosition, newHomeIndex;
-          if (inHomeStretch || newIndex >= path.length) {
-            // Enter or continue in home stretch
-            const stretchIndex = inHomeStretch ? currentIndex - path.length + diceValue : newIndex - path.length;
-            if (stretchIndex >= stretch.length) return piece;
-            newPosition = stretch[stretchIndex];
-            inHomeStretch = true;
-            newHomeIndex = stretchIndex;
-            // Check for exact finish
-            if (gameRules.isExactFinish(currentIndex, diceValue, true)) {
-              scored = true;
-            }
-          } else {
-            // Move along the main path
-            newPosition = path[newIndex];
-            inHomeStretch = false;
-            newHomeIndex = undefined;
-          }
+      if (!result.inHomeStretch) {
+        const occupiedByOwn = prev.some((p) => p.id !== piece.id && p.player === currentPlayer && p.position && p.position.x === result.newPosition.x && p.position.y === result.newPosition.y && !p.inHomeStretch);
+        if (occupiedByOwn) return prev;
+      }
 
-          // Block move if own token is on the destination
-          if (newPosition && !inHomeStretch) {
-            const occupiedByOwn = prev.some(p => p.id !== piece.id && p.player === currentPlayer && p.position && p.position.x === newPosition.x && p.position.y === newPosition.y);
-            if (occupiedByOwn) return piece;
-          }
-
-          // Capture opponent's token if present
-          let newPrev = prev.map(p => {
-            if (
-              p.id !== piece.id &&
-              p.position &&
-              newPosition &&
-              !inHomeStretch &&
-              !p.inHomeStretch &&
-              p.position.x === newPosition.x &&
-              p.position.y === newPosition.y &&
-              p.player !== currentPlayer
-            ) {
-              return { ...p, position: null, pathIndex: undefined, inHomeStretch: false, homeIndex: undefined };
-            }
-            return p;
-          });
-
-          newPrev = newPrev.map(p =>
-            p.id === piece.id
-              ? {
-                  ...p,
-                  position: newPosition,
-                  pathIndex: inHomeStretch ? path.length + newHomeIndex : newIndex,
-                  inHomeStretch,
-                  homeIndex: newHomeIndex,
-                }
-              : p
-          );
-          return newPrev.find(p => p.id === piece.id);
+      let newPrev = prev.map((p) => {
+        if (p.id !== piece.id && p.position && result.newPosition && !result.inHomeStretch && !p.inHomeStretch && p.position.x === result.newPosition.x && p.position.y === result.newPosition.y && p.player !== currentPlayer) {
+          return { ...p, position: null, pathIndex: undefined, inHomeStretch: false, homeIndex: undefined };
         }
-        return piece;
+        return p;
       });
-      updated = updated.flat ? updated.flat() : updated;
-      if (scored) {
-        setScores((prevScores) => ({
-          ...prevScores,
-          [currentPlayer]: prevScores[currentPlayer] + 1,
-        }));
-      }
-      const winnerEntry = Object.entries(scores).find(([player, score]) => score >= 4);
-      if (winnerEntry && !winner) {
-        setWinner(winnerEntry[0]);
-      }
-      return updated;
-    });
-    if (diceValue !== 6) nextTurn();
-  };
 
-  const addScore = () => {
-    setScores((prev) => ({
-      ...prev,
-      [currentPlayer]: prev[currentPlayer] + 1,
-    }));
-  };
+      newPrev = newPrev.map((p) => p.id === piece.id ? { ...p, position: result.newPosition, pathIndex: result.newIndex, inHomeStretch: result.inHomeStretch, homeIndex: result.inHomeStretch ? (result.newIndex - boardPath[p.player].length) : undefined } : p);
+
+      return newPrev;
+    });
+
+    if (scored) {
+      setScores((prev) => {
+        const next = { ...prev, [currentPlayer]: (prev[currentPlayer] || 0) + 1 };
+        if (next[currentPlayer] >= 4) {
+          setWinner(currentPlayer);
+        }
+        return next;
+      });
+    }
+
+    if (diceValue !== 6) nextTurn();
+  }, [diceValue, currentPlayer]);
+
+  useEffect(() => {
+    if (!computerPlayers.includes(currentPlayer) || !mustMove || !diceValue) return;
+    const movable = getMovableTokens(currentPlayer, diceValue);
+    if (movable.length === 0) {
+      setMustMove(false);
+      return;
+    }
+    const timer = setTimeout(() => { performMove(movable[0].id); }, 600);
+    return () => clearTimeout(timer);
+  }, [mustMove, currentPlayer, diceValue, pieces, getMovableTokens, performMove]);
+
+  useEffect(() => {
+    if (!computerPlayers.includes(currentPlayer) || mustMove) return;
+    const timer = setTimeout(() => {
+      const v = rollDice();
+      const movable = getMovableTokens(currentPlayer, v);
+      if (movable.length > 0) performMove(movable[0].id);
+      else nextTurn();
+    }, 700);
+    return () => clearTimeout(timer);
+  }, [currentPlayer, mustMove, getMovableTokens, performMove, rollDice]);
 
   const handleTokenClick = (id) => {
-    moveToken(id);
+    if (!diceValue) return;
+    performMove(id);
   };
 
-  const getMovableTokens = (player, dice) => {
-    return pieces.filter(p => p.player === player && (
-      (p.position === null && dice === 6) ||
-      (p.position !== null && (!p.inHomeStretch || (p.inHomeStretch && p.homeIndex < 3)))
-    ));
-  };
-
-  React.useEffect(() => {
-    // Only auto-move for computer players
-    if (computerPlayers.includes(currentPlayer) && mustMove && diceValue && getMovableTokens(currentPlayer, diceValue).length > 0) {
-      const movable = getMovableTokens(currentPlayer, diceValue);
-      moveToken(movable[0].id);
-    }
-  }, [mustMove, currentPlayer, diceValue]);
-
-  React.useEffect(() => {
-    if (computerPlayers.includes(currentPlayer) && !mustMove) {
-      const timer = setTimeout(() => {
-        const dice = rollDice();
-        setTimeout(() => {
-          const movable = getMovableTokens(currentPlayer, dice);
-          let moved = false;
-          for (let i = 0; i < movable.length; i++) {
-            const piece = movable[i];
-            let currentIndex = piece.pathIndex ?? 0;
-            let inHomeStretch = piece.inHomeStretch || false;
-            let homeIndex = piece.homeIndex;
-            if (piece.position === null && dice === 6) currentIndex = 0;
-            const path = boardPath[piece.player];
-            const stretch = homeStretches[piece.player];
-            const maxIndex = path.length + stretch.length - 1;
-            const newIndex = currentIndex + dice;
-            if (piece.inHomeStretch && piece.homeIndex === 3 && currentIndex === maxIndex) continue;
-            if (newIndex > maxIndex) continue;
-            let newPosition, newHomeIndex;
-            if (newIndex < path.length) {
-              newPosition = path[newIndex];
-              inHomeStretch = false;
-              newHomeIndex = undefined;
-            } else {
-              newPosition = stretch[newIndex - path.length];
-              inHomeStretch = true;
-              newHomeIndex = Math.max(0, Math.min(newIndex - path.length, 3));
-            }
-            if (newPosition && !(inHomeStretch && newHomeIndex === 3)) {
-              const occupiedByOwn = pieces.some(p => p.id !== piece.id && p.player === currentPlayer && p.position && p.position.x === newPosition.x && p.position.y === newPosition.y);
-              if (occupiedByOwn) continue;
-            }
-            handleTokenClick(piece.id);
-            moved = true;
-            break;
-          }
-          if (!moved) {
-            nextTurn();
-          }
-        }, 600);
-      }, 800);
-      return () => clearTimeout(timer);
-    }
-  }, [currentPlayer, mustMove, pieces]);
+  React.useEffect(() => { setRollCount(0); }, [currentPlayer]);
 
   return (
-    <GameContext.Provider
-      value={{
-        currentPlayer,
-        scores,
-        rollDice,
-        diceValue,
-        nextTurn,
-        pieces,
-        handleTokenClick,
-        rollCount,
-        winner,
-        setWinner,
-        mustMove,
-      }}
-    >
+    <GameContext.Provider value={{ currentPlayer, diceValue, rollDice, nextTurn, pieces, performMove, getMovableTokens, scores, setScores, winner, setWinner, mustMove, handleTokenClick, rollCount }}>
       {children}
     </GameContext.Provider>
   );
