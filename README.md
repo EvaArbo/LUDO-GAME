@@ -117,4 +117,4 @@ Make sure you have Node.js and npm installed
 Contributions are welcome! Feel free to fork the repo, submit pull requests, or suggest improvements via Issues.
 
 📜 License
-MIT © [Your Name]
+MIT © [EVaARBO]
