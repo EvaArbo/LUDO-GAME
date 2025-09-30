@@ -1,41 +1,37 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/LudoLogin.css";
-import logo from "../../images/logo.png"; // replace with your Ludo Fighters logo image
-import userIcon from "../../images/user.png"; // small icon for Name input
-import lockIcon from "../../images/lock.png"; // small icon for Password input
+import logo from "../../images/logo.png";
+import userIcon from "../../images/user.png";
+import lockIcon from "../../images/lock.png";
 
 export default function LudoLogin() {
-  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-
   const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
 
-    // Get users
+    // Get users (should be stored as [{ name, email, password }, ...])
     const users = JSON.parse(localStorage.getItem("users")) || [];
 
-    // Find user
-    const user = users.find(u => u.email === email && u.password === password);
+    // Find user by NAME and PASSWORD
+    const user = users.find(
+      (u) => u.name === name && u.password === password
+    );
 
     if (user) {
-      console.log("Login with:", { email, password });
-      localStorage.setItem("currentUser", email);
+      console.log("Login with:", { name, password });
+      localStorage.setItem("currentUser", name);
       navigate("/dashboard");
     } else {
-      alert("Invalid email or password. Please register if you haven't.");
+      alert("Invalid name or password. Please register if you haven't.");
     }
   };
 
-  const handleRegister = () => {
-    navigate("/register");
-  };
-
-  const handleDelete = () => {
-    navigate("/delete-account");
-  };
+  const handleRegister = () => navigate("/register");
+  const handleDelete = () => navigate("/delete-account");
 
   return (
     <div className="login-container">
@@ -47,14 +43,14 @@ export default function LudoLogin() {
 
         {/* Form */}
         <form onSubmit={handleLogin} className="login-form">
-          {/* Email Input */}
+          {/* Name Input */}
           <div className="input-group">
             <img src={userIcon} alt="User Icon" className="icon" />
             <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
             />
           </div>
