@@ -1,164 +1,269 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
-import { boardPath, homeStretches, movePiece } from '../utils/movement.js';
+import React, { createContext, useState, useEffect, useCallback } from "react";
+import api from "../services/api"; // Axios instance with baseURL and credentials
+import { boardPath, homeStretches, movePiece } from "../utils/movement.js";
 
 export const GameContext = createContext();
 
 const initialPieces = () => {
   const make = (player, prefix) =>
-    Array.from({ length: 4 }).map((_, i) => ({ id: `${prefix}-${i}`, player, position: null, pathIndex: undefined, inHomeStretch: false, homeIndex: undefined }));
-  return [...make('Red', 'red'), ...make('Green', 'green'), ...make('Yellow', 'yellow'), ...make('Blue', 'blue')];
+    Array.from({ length: 4 }).map((_, i) => ({
+      id: `${prefix}-${i}`,
+      player,
+      position: null,
+      pathIndex: undefined,
+      inHomeStretch: false,
+      homeIndex: undefined,
+    }));
+  return [
+    ...make("Red", "red"),
+    ...make("Green", "green"),
+    ...make("Yellow", "yellow"),
+    ...make("Blue", "blue"),
+  ];
 };
 
-const computerPlayers = ['Green', 'Yellow', 'Blue'];
+const order = ["Red", "Green", "Yellow", "Blue"];
+const computerPlayers = ["Green", "Yellow", "Blue"];
 
 export const GameProvider = ({ children }) => {
-  const [currentPlayer, setCurrentPlayer] = useState('Red');
-  const [diceValue, setDiceValue] = useState(null);
+  const [gameId, setGameId] = useState(localStorage.getItem("lastGameId") || null);
+  const [currentPlayer, setCurrentPlayer] = useState("Red");
+  const [diceValue, setDiceValue] = useState(null); // Human-visible dice
+  const [aiDice, setAiDice] = useState(null);       // Internal AI dice
   const [pieces, setPieces] = useState(initialPieces());
   const [scores, setScores] = useState({ Red: 0, Green: 0, Yellow: 0, Blue: 0 });
-  const [mustMove, setMustMove] = useState(false);
+  const [lastRolls, setLastRolls] = useState({ Red: null, Green: null, Yellow: null, Blue: null });
   const [winner, setWinner] = useState(null);
   const [rollCount, setRollCount] = useState(0);
+  const [mustMove, setMustMove] = useState(false);
 
-  const getMovableTokens = useCallback((player, dice) => {
-    return pieces.filter((p) => p.player === player && (
-      (p.position === null && dice === 6) ||
-      (p.position !== null && (!p.inHomeStretch || (p.inHomeStretch && (p.homeIndex ?? 0) < homeStretches[player].length - 1)))
-    ));
-  }, [pieces]);
-
-  const rollDice = useCallback(() => {
-    if (mustMove) return null;
-    const v = Math.floor(Math.random() * 6) + 1;
-    setDiceValue(v);
-    setRollCount((r) => r + 1);
-    if (v === 6) {
-      const movable = getMovableTokens(currentPlayer, v);
-      if (movable.length > 0) {
-        // For the human player (Red) auto-place the first home token so users see movement immediately.
-        // For AI players, keep mustMove so the existing auto-play effect triggers.
-        if (currentPlayer === 'Red') {
-          setPieces((prev) => {
-            const piece = prev.find((p) => p.player === currentPlayer && p.position === null);
-            if (!piece) return prev;
-            const path = boardPath[currentPlayer];
-            if (!path || path.length === 0) return prev;
-            const entry = path[0];
-            return prev.map((p) => p.id === piece.id ? { ...p, position: { x: entry.x, y: entry.y }, pathIndex: 0, inHomeStretch: false, homeIndex: undefined } : p);
-          });
-        } else {
-          setMustMove(true);
-        }
-      }
+  // ----------------------------
+  // 🔹 Start a new game
+  // ----------------------------
+  const startNewGame = useCallback(async () => {
+    try {
+      const res = await api.post("/game/new");
+      if (!res.data?.game_id) throw new Error("No game_id returned from server");
+      setGameId(res.data.game_id);
+      localStorage.setItem("lastGameId", res.data.game_id);
+      setPieces(initialPieces());
+      setScores({ Red: 0, Green: 0, Yellow: 0, Blue: 0 });
+      setLastRolls({ Red: null, Green: null, Yellow: null, Blue: null });
+      setCurrentPlayer("Red");
+      setWinner(null);
+      setDiceValue(null);
+      setAiDice(null);
+      setRollCount(0);
+      return res.data;
+    } catch (err) {
+      console.error("⚠️ Error starting game:", err.message);
+      throw err;
     }
-    return v;
-  }, [mustMove, currentPlayer, getMovableTokens]);
+  }, []);
 
-  const nextTurn = () => {
-    const order = ['Red', 'Green', 'Yellow', 'Blue'];
+  // ----------------------------
+  // 🔹 Resume last saved game
+  // ----------------------------
+  const resumeLastGame = useCallback(async () => {
+    if (!gameId) return null;
+    try {
+      const res = await api.get("/game/resume");
+      if (!res.data?.game_id) {
+        console.warn("⚠️ No saved game found");
+        return null;
+      }
+      setGameId(res.data.game_id);
+      localStorage.setItem("lastGameId", res.data.game_id);
+      setPieces(res.data.state?.pieces || initialPieces());
+      setScores(res.data.state?.scores || { Red: 0, Green: 0, Yellow: 0, Blue: 0 });
+      setLastRolls(res.data.state?.lastRolls || { Red: null, Green: null, Yellow: null, Blue: null });
+      setCurrentPlayer(res.data.state?.currentPlayer || "Red");
+      setWinner(res.data.state?.winner || null);
+      setDiceValue(res.data.state?.diceValue || null);
+      setRollCount(0);
+      return res.data;
+    } catch (err) {
+      console.error("⚠️ Error resuming game:", err.message);
+      return null;
+    }
+  }, [gameId]);
+
+  // ----------------------------
+  // 🔹 Persist game state
+  // ----------------------------
+  const persistState = useCallback(
+    async (customState) => {
+      if (!gameId) return;
+      const state = customState || { pieces, scores, lastRolls, currentPlayer, diceValue, winner };
+      try {
+        await api.put(`/game/${gameId}`, { state });
+      } catch (err) {
+        console.error("⚠️ Error saving game:", err.message);
+      }
+    },
+    [gameId, pieces, scores, lastRolls, currentPlayer, diceValue, winner]
+  );
+
+  useEffect(() => {
+    if (gameId) persistState();
+  }, [pieces, scores, currentPlayer, diceValue, winner, gameId, persistState]);
+
+  // ----------------------------
+  // 🔹 Turn & movement helpers
+  // ----------------------------
+  const getMovableTokens = useCallback(
+    (player, dice) =>
+      pieces.filter(
+        (p) =>
+          p.player === player &&
+          ((p.position === null && dice === 6) ||
+            (p.position !== null &&
+              (!p.inHomeStretch ||
+                (p.inHomeStretch && (p.homeIndex ?? 0) < homeStretches[player].length - 1))))
+      ),
+    [pieces]
+  );
+
+  const nextTurn = useCallback(() => {
     setDiceValue(null);
+    setAiDice(null);
     setMustMove(false);
     setCurrentPlayer((prev) => order[(order.indexOf(prev) + 1) % order.length]);
-  };
+    setRollCount(0);
+  }, []);
 
-  const placeAtEntry = (piece) => {
-    const path = boardPath[piece.player];
-    if (!path || path.length === 0) return piece;
-    const entry = path[0];
-    return { ...piece, position: { x: entry.x, y: entry.y }, pathIndex: 0, inHomeStretch: false, homeIndex: undefined };
-  };
-  const performMove = useCallback((pieceId) => {
-    if (!diceValue) return;
-    setMustMove(false);
-    let scored = false;
-    setPieces((prev) => {
-      const piece = prev.find((p) => p.id === pieceId && p.player === currentPlayer);
-      if (!piece) return prev;
+  const rollDice = useCallback(() => {
+    if (mustMove || winner || computerPlayers.includes(currentPlayer)) return null;
+    const value = Math.floor(Math.random() * 6) + 1;
+    setDiceValue(value); // Only human sees this
+    setLastRolls(prev => ({ ...prev, Red: value }));
+    setRollCount((r) => r + 1);
+    return value;
+  }, [mustMove, winner, currentPlayer]);
 
-      // Leaving home
-      if (piece.position === null) {
-        if (diceValue !== 6) return prev;
-        const updatedPiece = placeAtEntry(piece);
-        const newPrev = prev.map((p) => {
-          if (p.id !== piece.id && p.position && p.position.x === updatedPiece.position.x && p.position.y === updatedPiece.position.y && !p.inHomeStretch && p.player !== currentPlayer) {
-            return { ...p, position: null, pathIndex: undefined, inHomeStretch: false, homeIndex: undefined };
-          }
-          return p;
-        }).map((p) => (p.id === updatedPiece.id ? updatedPiece : p));
-        return newPrev;
-      }
-
-      const currentIndex = typeof piece.pathIndex === 'number' ? piece.pathIndex : boardPath[piece.player].findIndex((q) => q.x === piece.position.x && q.y === piece.position.y);
-      const result = movePiece(piece.player, currentIndex, diceValue);
-      if (!result) return prev;
-
-      // detect scoring: landing on the final cell of the stretch
-      const path = boardPath[piece.player];
-      const stretch = homeStretches[piece.player] || [];
-      const finalIndex = path.length + stretch.length - 1;
-      if (result.newIndex === finalIndex) scored = true;
-
-      if (!result.inHomeStretch) {
-        const occupiedByOwn = prev.some((p) => p.id !== piece.id && p.player === currentPlayer && p.position && p.position.x === result.newPosition.x && p.position.y === result.newPosition.y && !p.inHomeStretch);
-        if (occupiedByOwn) return prev;
-      }
-
-      let newPrev = prev.map((p) => {
-        if (p.id !== piece.id && p.position && result.newPosition && !result.inHomeStretch && !p.inHomeStretch && p.position.x === result.newPosition.x && p.position.y === result.newPosition.y && p.player !== currentPlayer) {
-          return { ...p, position: null, pathIndex: undefined, inHomeStretch: false, homeIndex: undefined };
-        }
-        return p;
-      });
-
-      newPrev = newPrev.map((p) => p.id === piece.id ? { ...p, position: result.newPosition, pathIndex: result.newIndex, inHomeStretch: result.inHomeStretch, homeIndex: result.inHomeStretch ? (result.newIndex - boardPath[p.player].length) : undefined } : p);
-
-      return newPrev;
-    });
-
-    if (scored) {
-      setScores((prev) => {
-        const next = { ...prev, [currentPlayer]: (prev[currentPlayer] || 0) + 1 };
-        if (next[currentPlayer] >= 4) {
-          setWinner(currentPlayer);
-        }
-        return next;
-      });
-    }
-
-    if (diceValue !== 6) nextTurn();
-  }, [diceValue, currentPlayer]);
-
-  useEffect(() => {
-    if (!computerPlayers.includes(currentPlayer) || !mustMove || !diceValue) return;
-    const movable = getMovableTokens(currentPlayer, diceValue);
-    if (movable.length === 0) {
+  const performMove = useCallback(
+    (pieceId, isAI = false, dice = null) => {
+      const moveDice = isAI ? dice : diceValue;
+      if (!moveDice) return;
       setMustMove(false);
-      return;
-    }
-    const timer = setTimeout(() => { performMove(movable[0].id); }, 600);
-    return () => clearTimeout(timer);
-  }, [mustMove, currentPlayer, diceValue, pieces, getMovableTokens, performMove]);
+      let scored = false;
 
+      setPieces((prev) => {
+        const piece = prev.find((p) => p.id === pieceId && p.player === currentPlayer);
+        if (!piece) return prev;
+
+        // Leaving home
+        if (piece.position === null) {
+          if (moveDice !== 6) return prev;
+          const path = boardPath[piece.player];
+          const entry = path[0];
+          const updatedPiece = { ...piece, position: { x: entry.x, y: entry.y }, pathIndex: 0 };
+          return prev.map((p) => (p.id === piece.id ? updatedPiece : p));
+        }
+
+        // Normal move
+        const currentIndex =
+          typeof piece.pathIndex === "number"
+            ? piece.pathIndex
+            : boardPath[piece.player].findIndex((q) => q.x === piece.position.x && q.y === piece.position.y);
+
+        const result = movePiece(piece.player, currentIndex, moveDice);
+        if (!result) return prev;
+
+        if (result.isFinal) scored = true;
+
+        return prev.map((p) =>
+          p.id === piece.id
+            ? {
+                ...p,
+                position: result.isFinal ? null : result.newPosition,
+                pathIndex: result.isFinal ? undefined : result.newIndex,
+                inHomeStretch: result.isFinal ? false : result.inHomeStretch,
+                homeIndex: result.isFinal ? undefined : (result.inHomeStretch ? result.newIndex - boardPath[p.player].length : undefined),
+              }
+            : p
+        );
+      });
+
+      if (scored) {
+        setScores((prev) => {
+          const next = { ...prev, [currentPlayer]: (prev[currentPlayer] || 0) + 1 };
+          if (next[currentPlayer] >= 4) setWinner(currentPlayer);
+          return next;
+        });
+      }
+
+      if (moveDice !== 6 && !isAI) nextTurn();
+    },
+    [diceValue, currentPlayer, nextTurn]
+  );
+
+  const handleTokenClick = useCallback(
+    (id) => {
+      if (!diceValue) return;
+      const movable = getMovableTokens(currentPlayer, diceValue);
+      if (!movable.some((p) => p.id === id)) return;
+      performMove(id);
+    },
+    [diceValue, currentPlayer, getMovableTokens, performMove]
+  );
+
+  // ----------------------------
+  // 🔹 AI turns
+  // ----------------------------
   useEffect(() => {
-    if (!computerPlayers.includes(currentPlayer) || mustMove) return;
-    const timer = setTimeout(() => {
-      const v = rollDice();
-      const movable = getMovableTokens(currentPlayer, v);
-      if (movable.length > 0) performMove(movable[0].id);
-      else nextTurn();
-    }, 700);
-    return () => clearTimeout(timer);
-  }, [currentPlayer, mustMove, getMovableTokens, performMove, rollDice]);
+    if (!computerPlayers.includes(currentPlayer) || winner) return;
 
-  const handleTokenClick = (id) => {
-    if (!diceValue) return;
-    performMove(id);
-  };
+    const aiPlay = async () => {
+      const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
-  React.useEffect(() => { setRollCount(0); }, [currentPlayer]);
+      let keepPlaying = true;
+
+      while (keepPlaying && computerPlayers.includes(currentPlayer) && !winner) {
+        await delay(1000);
+
+        const dice = Math.floor(Math.random() * 6) + 1;
+        setAiDice(dice); // AI dice is internal
+        setLastRolls(prev => ({ ...prev, [currentPlayer]: dice }));
+
+        await delay(500);
+
+        const movable = getMovableTokens(currentPlayer, dice);
+
+        if (movable.length > 0) {
+          performMove(movable[0].id, true, dice);
+          keepPlaying = dice === 6 && getMovableTokens(currentPlayer, dice).length > 0;
+        } else {
+          keepPlaying = false;
+        }
+
+        if (!keepPlaying) nextTurn();
+      }
+    };
+
+    aiPlay();
+  }, [currentPlayer, winner, getMovableTokens, performMove, nextTurn]);
 
   return (
-    <GameContext.Provider value={{ currentPlayer, diceValue, rollDice, nextTurn, pieces, performMove, getMovableTokens, scores, setScores, winner, setWinner, mustMove, handleTokenClick, rollCount }}>
+    <GameContext.Provider
+      value={{
+        gameId,
+        currentPlayer,
+        diceValue,
+        rollDice,
+        nextTurn,
+        pieces,
+        performMove,
+        scores,
+        lastRolls,
+        winner,
+        mustMove,
+        handleTokenClick,
+        rollCount,
+        startNewGame,
+        resumeLastGame,
+      }}
+    >
       {children}
     </GameContext.Provider>
   );

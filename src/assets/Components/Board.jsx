@@ -22,7 +22,10 @@ const Board = () => {
     handleTokenClick,
     rollCount,
     winner,
-    setWinner
+    setWinner,
+    diceValue,
+    aiDice,
+    lastRolls
   } = useContext(GameContext);
 
   const [showInstructions, setShowInstructions] = useState(false);
@@ -84,7 +87,7 @@ const Board = () => {
       }
 
   // movement coordinates are stored as { x: rowIndex, y: colIndex } in movement.js
-  const pieceAtCell = pieces.find(p => p.position && p.position.x === row && p.position.y === col && !p.inHomeStretch);
+  const pieceAtCell = pieces.find(p => p.position && p.position.x === row && p.position.y === col);
 
       let homeTokensComponent = null;
       if (isBlueHomeCenter) homeTokensComponent = <HomeTokens color="blue" tokens={homeTokens.blue} />;
@@ -118,7 +121,7 @@ const Board = () => {
         <ul>
           {Object.entries(scores).map(([player, score]) => (
             <li key={player}>
-              <span className={`player-name ${player}`}>{player}</span>: {score}
+              <span className={`player-name ${player}`}>{player}</span>: {score} | Last Roll: {lastRolls[player] ?? "-"}
             </li>
           ))}
         </ul>

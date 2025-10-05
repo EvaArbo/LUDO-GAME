@@ -5,33 +5,46 @@ import logo from "../../images/logo.png";
 import userIcon from "../../images/user.png";
 import lockIcon from "../../images/lock.png";
 
+// Axios API helper
+import { loginUser } from "../../services/api";
+
 export default function LudoLogin() {
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState(""); 
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    // Get users (should be stored as [{ name, email, password }, ...])
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+    try {
+      const res = await loginUser({ username, password });
 
-    // Find user by NAME and PASSWORD
-    const user = users.find(
-      (u) => u.name === name && u.password === password
-    );
+      if (res?.access_token) {
+        // ✅ store token (already handled inside api.js too, but safe to keep)
+        localStorage.setItem("token", res.access_token);
+        localStorage.setItem("currentUser", JSON.stringify({ username }));
 
-    if (user) {
-      console.log("Login with:", { name, password });
-      localStorage.setItem("currentUser", name);
-      navigate("/dashboard");
-    } else {
-      alert("Invalid name or password. Please register if you haven't.");
+        console.log("Logged in:", res);
+
+        navigate("/dashboard", { replace: true });
+      } else {
+        setError("Login failed: no access token returned.");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(err.response?.data?.error || "Invalid username or password. Try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleRegister = () => navigate("/register");
   const handleDelete = () => navigate("/delete-account");
+  const handleForgotPassword = () => navigate("/forgot-password");
 
   return (
     <div className="login-container">
@@ -41,21 +54,19 @@ export default function LudoLogin() {
           <img src={logo} alt="Ludo Fighters Logo" className="logo" />
         </div>
 
-        {/* Form */}
+        {/* Login Form */}
         <form onSubmit={handleLogin} className="login-form">
-          {/* Name Input */}
           <div className="input-group">
             <img src={userIcon} alt="User Icon" className="icon" />
             <input
               type="text"
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
 
-          {/* Password Input */}
           <div className="input-group">
             <img src={lockIcon} alt="Lock Icon" className="icon" />
             <input
@@ -67,26 +78,33 @@ export default function LudoLogin() {
             />
           </div>
 
+          {error && <p className="error-text">{error}</p>}
+
           {/* Forgot Password */}
           <div className="forgot-password">
-            <a href="/">Forgot your password?</a>
+            <button
+              type="button"
+              className="forgot-btn"
+              onClick={handleForgotPassword}
+            >
+              Forgot your password?
+            </button>
           </div>
 
-          {/* Login Button */}
-          <button type="submit" className="login-btn">
-            LOGIN
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? "Logging in..." : "LOGIN"}
           </button>
         </form>
 
-        {/* Register Button */}
-        <button type="button" className="register-btn" onClick={handleRegister}>
-          Register new account
-        </button>
-
-        {/* Delete Account Button */}
-        <button type="button" className="delete-btn" onClick={handleDelete}>
-          Delete account
-        </button>
+        {/* Bottom Buttons */}
+        <div className="bottom-buttons">
+          <button type="button" className="register-btn" onClick={handleRegister}>
+            Register New Account
+          </button>
+          <button type="button" className="delete-btn" onClick={handleDelete}>
+            Delete Account
+          </button>
+        </div>
       </div>
     </div>
   );

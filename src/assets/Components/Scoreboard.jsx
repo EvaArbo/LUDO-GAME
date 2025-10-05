@@ -1,7 +1,9 @@
 import React from "react";
 import "../styles/scoreboard.css";
 
-const Scoreboard = ({ players, currentPlayer }) => {
+const Scoreboard = ({ players, currentPlayer, diceValues }) => {
+  // diceValues: { Red: 6, Green: 3, Yellow: 5, Blue: 2 }
+
   return (
     <div className="scoreboard">
       <h3>🎯 Scoreboard</h3>
@@ -12,7 +14,9 @@ const Scoreboard = ({ players, currentPlayer }) => {
             className={player.color === currentPlayer ? "active" : ""}
           >
             <span className={`dot ${player.color}`}></span>
-            <strong>{player.name}</strong> | Home: {player.home} | Path: {player.path} | Finish: {player.finish}
+            <strong>{player.name}</strong> | 
+            Home: {player.home} | Path: {player.path} | Finish: {player.finish} | 
+            🎲 Last Roll: {diceValues[player.color] ?? "-"}
           </li>
         ))}
       </ul>

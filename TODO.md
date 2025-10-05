@@ -6,3 +6,4 @@
 - [x] Update src/components/auth/Dashboard.jsx: Integrate game UI and fix logout to remove 'currentUser' key
 - [x] Verify src/App.jsx is reusable as game component (no changes needed)
 - [x] Test integration: Register, login, access game, logout, delete account
+tree -I "node_modules"

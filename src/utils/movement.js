@@ -29,19 +29,19 @@ export const homeStretches = {
   // Order: first entry is closest to center (so adjacency math works)
   Red: [
   { x: 6, y: 7 }, { x: 5, y: 7 }, { x: 4, y: 7 },
-  { x: 3, y: 7 }, { x: 2, y: 7 }, { x: 1, y: 7 },
+  { x: 3, y: 7 }, { x: 2, y: 7 }, { x: 1, y: 7 }, { x: 7, y: 7 },
   ],
   Green: [
     { x: 7, y: 8 }, { x: 7, y: 9 }, { x: 7, y: 10 },
-    { x: 7, y: 11 }, { x: 7, y: 12 }, { x: 7, y: 13 },
+    { x: 7, y: 11 }, { x: 7, y: 12 }, { x: 7, y: 13 }, { x: 7, y: 7 },
   ],
   Yellow: [
     { x: 8, y: 7 }, { x: 9, y: 7 }, { x: 10, y: 7 },
-    { x: 11, y: 7 }, { x: 12, y: 7 }, { x: 13, y: 7 },
+    { x: 11, y: 7 }, { x: 12, y: 7 }, { x: 13, y: 7 }, { x: 7, y: 7 },
   ],
   Blue: [
     { x: 7, y: 6 }, { x: 7, y: 5 }, { x: 7, y: 4 },
-    { x: 7, y: 3 }, { x: 7, y: 2 }, { x: 7, y: 1 },
+    { x: 7, y: 3 }, { x: 7, y: 2 }, { x: 7, y: 1 }, { x: 7, y: 7 },
   ],
 };
 
@@ -113,10 +113,13 @@ export const movePiece = (player, currentIndex, diceRoll) => {
       ? path[newIndex]
       : stretch[newIndex - path.length];
 
+  const isFinal = newIndex === maxIndex;
+
   return {
     newIndex,
     newPosition,
     inHomeStretch: newIndex >= path.length,
+    isFinal,
   };
 };
 
@@ -134,4 +137,9 @@ export const getBoardLayout = (size = 15) => {
 
 export function rollDice() {
   return Math.floor(Math.random() * 6) + 1;
+}
+
+export function calculateNewPosition(current, dice) {
+  const newPos = current + dice;
+  return newPos > 56 ? current : newPos;
 }

@@ -1,78 +1,124 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../styles/LudoLogin.css"; // Reuse the same styles for now
+import { registerUser } from "../../services/api";
+import "../../styles/LudoLogin.css";
 
 export default function Register() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  // ✅ Handle form changes dynamically
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" }); // clear field error
+  };
+
+  // ✅ Client-side validation
+  const validateForm = () => {
+    const newErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!formData.username.trim()) newErrors.username = "Username is required";
+    if (!emailRegex.test(formData.email)) newErrors.email = "Invalid email";
+    if (formData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleRegister = async (e) => {
     e.preventDefault();
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      alert("Please enter a valid email address.");
-      return;
+    if (!validateForm()) return;
+
+    try {
+      setLoading(true);
+      const response = await registerUser(formData);
+      console.log("Registered:", response.data);
+
+      alert("✅ Registration successful! Redirecting to login...");
+      navigate("/");
+    } catch (err) {
+      console.error("Error registering:", err);
+      const backendMsg = err.response?.data?.error || "Registration failed.";
+      setErrors({ general: backendMsg });
+    } finally {
+      setLoading(false);
     }
-
-    // Get existing users
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-
-    // Check if email already exists
-    if (users.some(user => user.email === email)) {
-      alert("Email already registered. Please use a different email.");
-      return;
-    }
-
-    // Add new user
-    const newUser = { name, email, password };
-    users.push(newUser);
-    localStorage.setItem("users", JSON.stringify(users));
-
-    console.log("Register with:", newUser);
-    alert("Registration successful! Redirecting to login...");
-    navigate("/");
   };
 
   return (
     <div className="login-container">
       <div className="login-box">
-        <h2>Register New Account</h2>
+        <h2>Create New Account</h2>
         <form onSubmit={handleRegister} className="login-form">
+          {/* Username */}
           <div className="input-group">
             <input
               type="text"
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              name="username"
+              placeholder="Username"
+              value={formData.username}
+              onChange={handleChange}
               required
             />
+            {errors.username && <small className="error">{errors.username}</small>}
           </div>
+
+          {/* Email */}
           <div className="input-group">
             <input
               type="email"
+              name="email"
               placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={handleChange}
               required
             />
+            {errors.email && <small className="error">{errors.email}</small>}
           </div>
-          <div className="input-group">
+
+          {/* Password with toggle */}
+          <div className="input-group password-group">
             <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password (min 6 chars)"
+              value={formData.password}
+              onChange={handleChange}
               required
             />
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? "🙈 Hide" : "👁 Show"}
+            </button>
+            {errors.password && <small className="error">{errors.password}</small>}
           </div>
-          <button type="submit" className="login-btn">
-            REGISTER
+
+          {/* General backend error */}
+          {errors.general && <p className="error center">{errors.general}</p>}
+
+          <button
+            type="submit"
+            className="login-btn"
+            disabled={loading || !formData.username || !formData.email || !formData.password}
+          >
+            {loading ? "Registering..." : "REGISTER"}
           </button>
         </form>
+
         <button type="button" className="register-btn" onClick={() => navigate("/")}>
           Back to Login
         </button>
