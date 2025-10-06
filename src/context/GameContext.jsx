@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback } from "react";
-import api from "../services/api"; // Axios instance with baseURL and credentials
+import api from "../services/api"; 
 import { boardPath, homeStretches, movePiece } from "../utils/movement.js";
 
 export const GameContext = createContext();
@@ -37,9 +37,9 @@ export const GameProvider = ({ children }) => {
   const [rollCount, setRollCount] = useState(0);
   const [mustMove, setMustMove] = useState(false);
 
-  // ----------------------------
+  
   // 🔹 Start a new game
-  // ----------------------------
+  
   const startNewGame = useCallback(async () => {
     try {
       const res = await api.post("/game/new");
@@ -61,9 +61,9 @@ export const GameProvider = ({ children }) => {
     }
   }, []);
 
-  // ----------------------------
+
   // 🔹 Resume last saved game
-  // ----------------------------
+
   const resumeLastGame = useCallback(async () => {
     if (!gameId) return null;
     try {
@@ -88,9 +88,9 @@ export const GameProvider = ({ children }) => {
     }
   }, [gameId]);
 
-  // ----------------------------
+ 
   // 🔹 Persist game state
-  // ----------------------------
+
   const persistState = useCallback(
     async (customState) => {
       if (!gameId) return;
@@ -208,9 +208,9 @@ export const GameProvider = ({ children }) => {
     [diceValue, currentPlayer, getMovableTokens, performMove]
   );
 
-  // ----------------------------
+
   // 🔹 AI turns
-  // ----------------------------
+  
   useEffect(() => {
     if (!computerPlayers.includes(currentPlayer) || winner) return;
 

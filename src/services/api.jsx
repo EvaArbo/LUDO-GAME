@@ -16,7 +16,7 @@ export const isTokenValid = () => {
     const parts = token.split('.');
     if (parts.length !== 3) return false;
 
-    // Decode payload to check expiration
+  
     const payload = JSON.parse(atob(parts[1]));
     const currentTime = Date.now() / 1000;
 
@@ -76,9 +76,9 @@ api.interceptors.response.use(
   }
 );
 
-// --------------------------
+
 // Authentication endpoints
-// --------------------------
+
 export const registerUser = (data) => api.post("/auth/register", data);
 
 export const loginUser = async (data) => {
@@ -117,10 +117,6 @@ export const deleteUser = () =>
 
 export const forgotPassword = (identifier) =>
   api.post("/auth/forgot-password", { identifier }).then((res) => res.data);
-
-// --------------------------
-// Game endpoints
-// --------------------------
 
 // Start a completely NEW game
 export const startGame = () => api.post("/game/new");
