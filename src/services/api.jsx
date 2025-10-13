@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:5000",
+  baseURL: import.meta.env.VITE_API_URL || "https://ludo-game-m710.onrender.com",
   withCredentials: true, // ensures cookies/JWT tokens are sent
   headers: { "Content-Type": "application/json" },
 });
