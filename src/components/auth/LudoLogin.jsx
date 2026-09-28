@@ -43,6 +43,7 @@ export default function LudoLogin() {
   };
 
   const handleRegister = () => navigate("/register");
+  const handleDelete = () => setError("Sign in first, then open Account settings to delete your account.");
   const handleForgotPassword = () => navigate("/forgot-password");
 
   return (
@@ -99,6 +100,9 @@ export default function LudoLogin() {
         <div className="bottom-buttons">
           <button type="button" className="register-btn" onClick={handleRegister}>
             Register New Account
+          </button>
+          <button type="button" className="delete-btn" onClick={handleDelete}>
+            Delete Account
           </button>
         </div>
       </div>

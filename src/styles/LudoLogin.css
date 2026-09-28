@@ -2,60 +2,85 @@
   min-height: 100dvh;
   display: grid;
   place-items: center;
-  padding: 24px 16px;
-  background: linear-gradient(145deg, #d62d92, #5b1e7d);
+  padding: 6px 16px;
+  background: linear-gradient(150deg, #d62d92, #5b1e7d);
 }
 .login-box {
-  width: min(100%, 420px);
-  padding: clamp(22px, 5vw, 36px);
-  background: #fff;
-  border: 1px solid #ead9ed;
-  border-radius: 20px;
-  box-shadow: 0 18px 55px #310e433d;
+  width: min(100%, 438px);
+  padding: clamp(20px, 5vw, 25px);
+  background: rgba(255, 255, 255, .10);
+  border-radius: 18px;
+  box-shadow: 0 8px 24px #35113d35;
   text-align: center;
+  color: #fff;
 }
-.logo-section { margin-bottom: 16px; }
-.logo { display: block; width: min(150px, 50%); height: auto; margin: auto; }
-.login-box h2 { margin: 8px 0; }
+.logo-section { margin-bottom: 30px; }
+.logo { display: block; width: 175px; max-width: 55%; height: auto; margin: auto; }
+.login-box h2 { margin: 8px 0 16px; }
 .login-box p { line-height: 1.5; }
+.login-form { width: 100%; }
 .input-group {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 14px 0;
-  padding: 0 12px;
-  border: 1px solid #cdb9d2;
+  margin: 18px 0;
+  padding: 10px 12px;
+  border: 1px solid #e9c6e7;
   border-radius: 10px;
-  background: #fff;
+  background: #ffffff12;
   flex-wrap: wrap;
 }
-.input-group:focus-within { border-color: #672784; box-shadow: 0 0 0 3px #d62d9233; }
-.input-group .icon { width: 20px; height: 20px; object-fit: contain; }
+.input-group:focus-within { border-color: #fff; box-shadow: 0 0 0 3px #ffffff44; }
+.input-group .icon { width: 24px; height: 24px; object-fit: contain; background: #fff; }
 .input-group input {
   flex: 1;
   min-width: 0;
-  min-height: 48px;
+  min-height: 24px;
+  padding: 2px 4px;
   border: 0;
   outline: 0;
-  background: transparent;
-  color: var(--ink);
+  border-radius: 0;
+  background: #e3eaff;
+  color: #171727;
+  font-size: 1rem;
 }
-.input-group input::placeholder { color: #74647c; }
-.input-group .error { flex-basis: 100%; padding-bottom: 6px; }
-.forgot-password { text-align: right; margin: 4px 0 18px; }
-.forgot-btn { border: 0; background: transparent; color: #672784; text-decoration: underline; padding: 6px 0; }
+.input-group input::placeholder { color: #4d4e64; }
+.input-group .error { flex-basis: 100%; }
+.forgot-password { text-align: right; margin: 18px 0; }
+.forgot-btn {
+  min-height: 46px;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 8px;
+  background: #444;
+  color: #fff;
+  font-weight: 700;
+}
+.forgot-btn:hover { background: #303030; }
 .login-btn, .register-btn, .delete-btn {
-  width: 100%; min-height: 46px; padding: 10px 14px;
-  border: 0; border-radius: 10px; font-weight: 700;
-  margin-top: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  font-weight: 700;
+  margin-top: 14px;
 }
-.login-btn { background: linear-gradient(90deg, #ff9800, #f57c00); color: #fff; }
-.register-btn { background: #388e3c; color: #fff; }
-.delete-btn { background: #fff; border: 1px solid #bd3434; color: #bd3434; }
-.login-btn:hover { background: linear-gradient(90deg, #f57c00, #dc6900); }
-.register-btn:hover { background: #2d6e31; }
-.delete-btn:hover { background: #fff0ee; }
-.error, .error-text { color: #ad2828; }
-.success-text { color: #388e3c; }
-.bottom-buttons { margin-top: 12px; }
-@media (max-width: 360px) { .login-box { padding: 20px 16px; } }
+.login-btn { background: #ff9200; font-size: 1.1rem; }
+.register-btn { background: #3eaa42; }
+.delete-btn { background: #ee3735; }
+.login-btn:hover { background: #e98000; }
+.register-btn:hover { background: #318e36; }
+.delete-btn:hover { background: #d92c2a; }
+.error, .error-text { color: #fff2a8; font-weight: 600; }
+.success-text { color: #d8ffd9; }
+.bottom-buttons { margin-top: 4px; }
+@media (max-width: 360px) {
+  .login-box { padding: 18px 16px; }
+  .logo-section { margin-bottom: 18px; }
+  .logo { width: 140px; }
+  .input-group { margin: 12px 0; }
+  .forgot-password { margin: 10px 0; }
+  .login-btn, .register-btn, .delete-btn { margin-top: 10px; }
+}
