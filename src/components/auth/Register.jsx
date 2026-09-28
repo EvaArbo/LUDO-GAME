@@ -49,8 +49,14 @@ export default function Register() {
       navigate("/");
     } catch (err) {
       console.error("Error registering:", err);
-      const backendMsg = err.response?.data?.error || "Registration failed.";
-      setErrors({ general: backendMsg });
+      const backendMsg = err.response?.data?.error;
+      if (backendMsg) {
+        setErrors({ general: backendMsg });
+      } else if (!err.response) {
+        setErrors({ general: "Could not reach the game server. Check your connection and try again." });
+      } else {
+        setErrors({ general: "The server could not create your account right now. Please try again later." });
+      }
     } finally {
       setLoading(false);
     }
