@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local API configuration; Vite otherwise uses the deployed backend default.
+.env
+.env.*
+!.env.example
