@@ -80,3 +80,10 @@
     transform: translateY(-4px);
   }
 }
+.turn-indicator-container { font-size: 1rem; padding: 8px 16px; box-shadow: 0 5px 16px #17253d22; }
+.turn-indicator-container.red { background: var(--red); box-shadow: 0 5px 16px #17253d22; }
+.turn-indicator-container.green { background: var(--green); box-shadow: 0 5px 16px #17253d22; }
+.turn-indicator-container.yellow { background: var(--yellow); box-shadow: 0 5px 16px #17253d22; }
+.turn-indicator-container.blue { background: var(--blue); box-shadow: 0 5px 16px #17253d22; }
+.player-circle { width: 32px; height: 32px; font-size: 1.2rem; }
+.player-text .label, .player-text .name { font-size: 1rem; }

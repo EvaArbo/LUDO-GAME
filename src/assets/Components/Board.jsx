@@ -8,7 +8,6 @@ import GamePiece from "./GamePiece";
 import HomeTokens from "./HomeTokens";
 import HomeTriangles from "./HomeTriangles";
 import "../styles/board.css";
-import { boardPath } from "../../utils/movement.js";
 
 
 const Board = () => {
@@ -23,8 +22,6 @@ const Board = () => {
     rollCount,
     winner,
     setWinner,
-    diceValue,
-    aiDice,
     lastRolls
   } = useContext(GameContext);
 
@@ -117,7 +114,6 @@ const Board = () => {
 
       <div className="scoreboard">
         <h3>🏆 Scoreboard</h3>
-        <div style={{marginBottom: '8px', fontWeight: 'bold'}}>Dice Rolls this turn: {rollCount}</div>
         <ul>
           {Object.entries(scores).map(([player, score]) => (
             <li key={player}>
@@ -127,7 +123,7 @@ const Board = () => {
         </ul>
       </div>
 
-      <div className="board">{cells}
+      <div className="board" aria-label="Ludo game board">{cells}
         <HomeTriangles />
 
         
@@ -149,7 +145,7 @@ const Board = () => {
 
       <div className="instructions">
         <button onClick={() => setShowInstructions(true)} className="toggle-instructions">
-          {showInstructions ? "Hide Instructions" : "How to Play"}
+          How to Play
         </button>
         <HowToPlay show={showInstructions} onClose={() => setShowInstructions(false)} />
       </div>

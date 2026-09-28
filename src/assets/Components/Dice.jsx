@@ -30,7 +30,7 @@ function Dice() {
 
   const handleRoll = () => {
     const audio = new Audio(diceRollSound);
-    audio.play();
+    audio.play().catch(() => {});
     setRolling(true);
     rollDice();
     setTimeout(() => {

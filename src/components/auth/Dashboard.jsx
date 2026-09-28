@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../../services/api";
 import { GameContext } from "../../context/GameContext";
+import "../../styles/Dashboard.css";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -56,19 +57,19 @@ export default function Dashboard() {
   };
 
   return (
-    <div style={{ padding: "20px", textAlign: "center" }}>
-      <h1>Welcome to Ludo Fighters Dashboard!</h1>
+    <main className="dashboard-container">
+      <section className="dashboard-card">
+      <h1>Welcome to Ludo Fighters 🎲</h1>
       {currentUser && <p>Hello, {currentUser.username} 👋</p>}
       <p>You are logged in successfully.</p>
 
-      <div style={{ margin: "20px 0" }}>
+      <div className="dashboard-actions">
         <button onClick={handleStartGame} disabled={loading}>
           {loading ? "Starting..." : "Start New Game"}
         </button>
 
         <button
           onClick={handleContinueGame}
-          style={{ marginLeft: "10px" }}
           disabled={loading}
         >
           {loading ? "Loading..." : "Continue Last Game"}
@@ -77,11 +78,15 @@ export default function Dashboard() {
 
       <button
         onClick={handleLogout}
-        style={{ marginTop: "20px" }}
+        className="dashboard-logout"
         disabled={loading}
       >
         {loading ? "Logging out..." : "Logout"}
       </button>
-    </div>
+      <button type="button" className="dashboard-delete" onClick={() => navigate("/delete-account")}>
+        Account settings
+      </button>
+      </section>
+    </main>
   );
 }

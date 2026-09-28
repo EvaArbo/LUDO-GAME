@@ -78,3 +78,13 @@
   text-align: center;
   text-shadow: 0 2px 4px rgba(0,0,0,0.35);
 }
+/* Keep tokens inside their squares as the board scales. */
+.game-piece {
+  width: 86%; height: 86%;
+  padding: 0;
+  border: 2px solid #fff;
+  font-size: clamp(10px, calc(var(--cell-size) * .42), 16px);
+  touch-action: manipulation;
+}
+.game-piece:hover { transform: translate(-50%, -50%) scale(1.08); }
+.game-piece .piece-text { font-size: inherit; }

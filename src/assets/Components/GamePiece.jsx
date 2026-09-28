@@ -6,9 +6,9 @@ const colorClass = (player) => player ? player.toLowerCase() : '';
 const GamePiece = ({ player, position, onClick }) => {
   if (!position) return null;
   return (
-    <div className={`game-piece ${colorClass(player)}`} onClick={onClick}>
+    <button type="button" className={`game-piece ${colorClass(player)}`} onClick={onClick} aria-label={`Move ${player} token`}>
       <span className="piece-text">{player ? player[0] : ''}</span>
-    </div>
+    </button>
   );
 };
 

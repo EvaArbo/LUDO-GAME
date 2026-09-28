@@ -29,7 +29,7 @@ export const GameProvider = ({ children }) => {
   const [gameId, setGameId] = useState(localStorage.getItem("lastGameId") || null);
   const [currentPlayer, setCurrentPlayer] = useState("Red");
   const [diceValue, setDiceValue] = useState(null); // Human-visible dice
-  const [aiDice, setAiDice] = useState(null);       // Internal AI dice
+  const [, setAiDice] = useState(null);       // Internal AI dice
   const [pieces, setPieces] = useState(initialPieces());
   const [scores, setScores] = useState({ Red: 0, Green: 0, Yellow: 0, Blue: 0 });
   const [lastRolls, setLastRolls] = useState({ Red: null, Green: null, Yellow: null, Blue: null });

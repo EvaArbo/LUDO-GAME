@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://ludo-game-m710.onrender.com",
+  baseURL: import.meta.env.VITE_API_URL || "https://ludo-game-backend-f2fk.onrender.com",
   withCredentials: true, // ensures cookies/JWT tokens are sent
   headers: { "Content-Type": "application/json" },
 });
@@ -61,8 +61,8 @@ api.interceptors.response.use(
       localStorage.removeItem("token");
       localStorage.removeItem("currentUser");
       // Only redirect if not already on login page
-      if (window.location.pathname !== '/login' && window.location.pathname !== '/') {
-        window.location.href = '/login';
+      if (window.location.pathname !== '/') {
+        window.location.href = '/';
       }
     } else if (status === 403) {
       console.error("Forbidden - insufficient permissions");

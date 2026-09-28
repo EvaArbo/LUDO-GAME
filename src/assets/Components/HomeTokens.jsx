@@ -27,7 +27,8 @@ const HomeTokens = ({ color, tokens }) => {
 						token.player.toLowerCase() === color &&
 						currentPlayer.toLowerCase() === color;
 					return (
-						<div
+						<button
+							type="button"
 							key={token.id}
 							className="pawn-circle"
 							style={{
@@ -38,9 +39,11 @@ const HomeTokens = ({ color, tokens }) => {
 							onClick={
 								isClickable ? () => handleTokenClick(token.id) : undefined
 							}
+							disabled={!isClickable}
+							aria-label={`Move ${color} token ${idx + 1} from home`}
 						>
 							{symbols[color]}
-						</div>
+						</button>
 					);
 				})}
 		</div>
